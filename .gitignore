@@ -1,0 +1,12 @@
+node_modules/
+dist/
+coverage/
+*.log
+.DS_Store
+
+# corpus tarball cache and generated fixture tarballs — never committed
+corpus/cache/
+corpus/generated/
+
+# local tool caches
+.lockwarden/

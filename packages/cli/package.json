@@ -1,0 +1,43 @@
+{
+  "name": "lockwarden",
+  "version": "0.0.2",
+  "description": "Audit what your npm dependency tree can execute — lifecycle scripts, native build hooks, AI-agent hooks, IDE task files — and answer \"am I hit?\" during supply-chain incidents.",
+  "keywords": [
+    "supply-chain",
+    "security",
+    "npm",
+    "lockfile",
+    "audit",
+    "postinstall",
+    "malware",
+    "sarif"
+  ],
+  "license": "MIT",
+  "author": "Raghul",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/itsraghul/lockwarden.git"
+  },
+  "homepage": "https://github.com/itsraghul/lockwarden#readme",
+  "bugs": "https://github.com/itsraghul/lockwarden/issues",
+  "type": "module",
+  "bin": {
+    "lockwarden": "dist/index.js"
+  },
+  "files": ["dist", "README.md", "LICENSE"],
+  "engines": {
+    "node": ">=20.12"
+  },
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "commander": "^13.0.0",
+    "semver": "^7.6.3",
+    "yaml": "^2.6.0"
+  },
+  "devDependencies": {
+    "@types/semver": "^7.5.8"
+  }
+}

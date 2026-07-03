@@ -1,0 +1,7 @@
+packages:
+  - packages/*
+  - corpus
+# Explicitly approved install scripts (pnpm blocks the rest — keep it that way).
+allowBuilds:
+  '@biomejs/biome': true
+  esbuild: true

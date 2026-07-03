@@ -1,0 +1,31 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [20, 22]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm build
+      - run: pnpm test
+      # Publish hygiene gate: nothing unexplained ships, ever (0.0.1 lesson).
+      - name: tarball allowlist check
+        working-directory: packages/cli
+        run: |
+          npm publish --dry-run --json 2>/dev/null \
+            | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const j=JSON.parse(s);const files=j.files.map(f=>f.path).sort();console.log(files.join("\n"));const fs=require("fs");const expected=fs.readFileSync("expected-tarball-files.txt","utf8").trim().split("\n").sort();const extra=files.filter(f=>!expected.includes(f) && !f.startsWith("dist/"));const missing=expected.filter(f=>!files.includes(f));if(extra.length||missing.length){console.error("Tarball mismatch. extra:",extra,"missing:",missing);process.exit(1)}})'

@@ -1,0 +1,16 @@
+{
+  "name": "@lockwarden/corpus",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Calibration harness: analyzers are born here against real tarballs; weights are gated by the separation report. Never shipped.",
+  "type": "module",
+  "scripts": {
+    "fetch": "node --experimental-strip-types scripts/fetch-benign.ts",
+    "build-malicious": "node --experimental-strip-types scripts/build-malicious.ts",
+    "run-calibration": "node --experimental-strip-types scripts/run.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "lockwarden": "workspace:*"
+  }
+}
