@@ -52,12 +52,6 @@ importers:
         specifier: ^7.5.8
         version: 7.7.1
 
-  packages/lock-warden:
-    dependencies:
-      lockwarden:
-        specifier: ^0.1.0
-        version: 0.1.0
-
 packages:
 
   '@ampproject/remapping@2.3.0':
@@ -1099,11 +1093,6 @@ packages:
   locate-path@5.0.0:
     resolution: {integrity: sha512-t7hw9pI+WvuwNJXwk5zVHpyhIqzg2qTlklJOf0mVxGSbe3Fp2VieZcduNYjaLDoy6p9uGpQEGWG87WpMKlNq8g==}
     engines: {node: '>=8'}
-
-  lockwarden@0.1.0:
-    resolution: {integrity: sha512-zTShFhPzAXtwhJ0JRz9asAsNKU/ucHVvHEqvxy++w/AQOiikPiSLDn8sXsNHX4bGOI02X2lbUZhYjrgrEPuTAQ==}
-    engines: {node: '>=20.12'}
-    hasBin: true
 
   lodash.startcase@4.4.0:
     resolution: {integrity: sha512-+WKqsK294HMSc2jEbNgpHpd0JfIBhp7rEV4aqXWqFr6AlXov+SlcgB1Fv01y2kGe3Gc8nMW7VA0SrGuSkRfIEg==}
@@ -2476,12 +2465,6 @@ snapshots:
   locate-path@5.0.0:
     dependencies:
       p-locate: 4.1.0
-
-  lockwarden@0.1.0:
-    dependencies:
-      commander: 13.1.0
-      semver: 7.8.5
-      yaml: 2.9.0
 
   lodash.startcase@4.4.0: {}
 
