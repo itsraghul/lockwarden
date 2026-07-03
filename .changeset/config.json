@@ -5,5 +5,5 @@
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "ignore": ["@lockwarden/monorepo", "@lockwarden/corpus"]
+  "ignore": ["@lockwarden/corpus"]
 }
