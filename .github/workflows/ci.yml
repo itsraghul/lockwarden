@@ -28,9 +28,11 @@ jobs:
       # Publish hygiene gate: nothing unexplained ships, ever (0.0.1 lesson).
       - name: tarball allowlist check
         working-directory: packages/cli
+        # npm pack --json has a stable array shape across npm majors
+        # (publish --dry-run --json does not — it broke on npm 11).
         run: |
-          npm publish --dry-run --json 2>/dev/null \
-            | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const j=JSON.parse(s);const files=j.files.map(f=>f.path).sort();console.log(files.join("\n"));const fs=require("fs");const expected=fs.readFileSync("expected-tarball-files.txt","utf8").trim().split("\n").sort();const extra=files.filter(f=>!expected.includes(f) && !f.startsWith("dist/"));const missing=expected.filter(f=>!files.includes(f));if(extra.length||missing.length){console.error("Tarball mismatch. extra:",extra,"missing:",missing);process.exit(1)}})'
+          npm pack --dry-run --json 2>/dev/null \
+            | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const j=JSON.parse(s);const pkg=Array.isArray(j)?j[0]:j;const files=pkg.files.map(f=>f.path).sort();console.log(files.join("\n"));const fs=require("fs");const expected=fs.readFileSync("expected-tarball-files.txt","utf8").trim().split("\n").sort();const extra=files.filter(f=>!expected.includes(f) && !f.startsWith("dist/"));const missing=expected.filter(f=>!files.includes(f));if(extra.length||missing.length){console.error("Tarball mismatch. extra:",extra,"missing:",missing);process.exit(1)}})'
       - name: upload dist for node20 smoke
         if: matrix.node == 22
         uses: actions/upload-artifact@v4
