@@ -19,7 +19,11 @@ interface RunResult {
   stderr: string;
 }
 
-async function run(args: string[], cwd: string, env: Record<string, string> = {}): Promise<RunResult> {
+async function run(
+  args: string[],
+  cwd: string,
+  env: Record<string, string> = {},
+): Promise<RunResult> {
   try {
     const { stdout, stderr } = await execFileAsync(process.execPath, [CLI, ...args], {
       cwd,
@@ -98,9 +102,13 @@ describe('check --json', () => {
 
 describe('check --incident', () => {
   it('exits 1 when a bundle package is resolved in the tree', async () => {
-    const r = await run(['check', '--incident', 'test-evil-pkg'], join(PROJECTS, 'hit-transitive'), {
-      LOCKWARDEN_INCIDENT_DIR: INCIDENT_DIR,
-    });
+    const r = await run(
+      ['check', '--incident', 'test-evil-pkg'],
+      join(PROJECTS, 'hit-transitive'),
+      {
+        LOCKWARDEN_INCIDENT_DIR: INCIDENT_DIR,
+      },
+    );
     expect(r.code).toBe(1);
     expect(r.stdout).toContain('Test fixture incident');
     expect(r.stdout).toContain('evil-pkg@1.2.3');

@@ -1,0 +1,101 @@
+{
+  "comment": "Synthetic malicious mutation specs. Every payload is DEFANGED — injected files contain only an inert comment; nothing here is executable malware. base = a benign package from benign-top500.json whose CURRENT tarball must be in corpus/cache/. modeledOn names the 2026 incident whose shape the mutation reproduces.",
+  "specs": [
+    {
+      "id": "postinstall-lodash",
+      "base": "lodash",
+      "mutation": "inject-postinstall",
+      "modeledOn": "node-ipc 9.1.6 (May 2026)"
+    },
+    {
+      "id": "postinstall-express",
+      "base": "express",
+      "mutation": "inject-postinstall",
+      "modeledOn": "autotel family (2026)"
+    },
+    {
+      "id": "binding-gyp-ms",
+      "base": "ms",
+      "mutation": "inject-binding-gyp",
+      "modeledOn": "native-hook droppers (2026 wave)"
+    },
+    {
+      "id": "binding-gyp-debug",
+      "base": "debug",
+      "mutation": "inject-binding-gyp",
+      "modeledOn": "native-hook droppers (2026 wave)"
+    },
+    {
+      "id": "mcp-manifest-chalk",
+      "base": "chalk",
+      "mutation": "inject-mcp-manifest",
+      "modeledOn": "Miasma @redhat-cloud-services (Jun 2026)"
+    },
+    {
+      "id": "mcp-manifest-commander",
+      "base": "commander",
+      "mutation": "inject-mcp-manifest",
+      "modeledOn": "Miasma @redhat-cloud-services (Jun 2026)"
+    },
+    {
+      "id": "vscode-task-semver",
+      "base": "semver",
+      "mutation": "inject-vscode-task",
+      "modeledOn": "folder-open task droppers (2026)"
+    },
+    {
+      "id": "vscode-task-yargs",
+      "base": "yargs",
+      "mutation": "inject-vscode-task",
+      "modeledOn": "folder-open task droppers (2026)"
+    },
+    {
+      "id": "inflate-main-ms",
+      "base": "ms",
+      "mutation": "inflate-main-25x",
+      "modeledOn": "node-ipc 9.2.3 payload append"
+    },
+    {
+      "id": "inflate-main-minimatch",
+      "base": "minimatch",
+      "mutation": "inflate-main-25x",
+      "modeledOn": "autotel family main-file stuffing"
+    },
+    {
+      "id": "phantom-dep-axios",
+      "base": "axios",
+      "mutation": "add-phantom-dep",
+      "modeledOn": "axios -> plain-crypto-js (Mar 2026)"
+    },
+    {
+      "id": "phantom-dep-react",
+      "base": "react",
+      "mutation": "add-phantom-dep",
+      "modeledOn": "axios -> plain-crypto-js (Mar 2026)"
+    },
+    {
+      "id": "transitive-patch-axios",
+      "base": "axios",
+      "mutation": "add-transitive-in-patch",
+      "modeledOn": "axios -> plain-crypto-js (Mar 2026)"
+    },
+    {
+      "id": "transitive-patch-express",
+      "base": "express",
+      "mutation": "add-transitive-in-patch",
+      "modeledOn": "axios -> plain-crypto-js (Mar 2026)"
+    },
+    {
+      "id": "postinstall-chalk",
+      "base": "chalk",
+      "mutation": "inject-postinstall",
+      "modeledOn": "shai-hulud (Jun 2026)"
+    },
+    {
+      "id": "inflate-main-debug",
+      "base": "debug",
+      "mutation": "inflate-main-25x",
+      "modeledOn": "node-ipc 12.0.1"
+    }
+  ]
+}

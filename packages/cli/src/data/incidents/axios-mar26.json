@@ -3,7 +3,9 @@
   "name": "Axios phantom transitive dep — plain-crypto-js (Mar 2026)",
   "date": "2026-03-18",
   "summary": "Phantom transitive dependency plain-crypto-js ran a postinstall payload, then replaced its own files with clean decoys. Only visible in the lockfile, never in package.json. One variant shipped the tampered code pre-baked in vendored node_modules.",
-  "references": ["https://github.com/itsraghul/lockwarden/blob/main/docs/lockwarden-use-case-and-learnings.md"],
+  "references": [
+    "https://github.com/itsraghul/lockwarden/blob/main/docs/lockwarden-use-case-and-learnings.md"
+  ],
   "packages": [
     {
       "name": "plain-crypto-js",

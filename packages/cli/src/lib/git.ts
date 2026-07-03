@@ -41,7 +41,11 @@ export async function lockfileHistory(cwd: string, relPath: string): Promise<Loc
 }
 
 /** File contents at a specific ref; null when the file does not exist at that ref. */
-export async function showFileAt(cwd: string, ref: string, relPath: string): Promise<string | null> {
+export async function showFileAt(
+  cwd: string,
+  ref: string,
+  relPath: string,
+): Promise<string | null> {
   try {
     return await git(['show', `${ref}:${relPath}`], cwd);
   } catch {

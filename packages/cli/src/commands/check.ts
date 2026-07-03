@@ -3,8 +3,8 @@ import { type IncidentBundle, loadIncidents } from '../data/index.js';
 import { ExecError, ExitCode } from '../exit.js';
 import type { GlobalOptions } from '../index.js';
 import { lockfileHistory, repoRoot, showFileAt } from '../lib/git.js';
-import { bad, bold, configureOutput, dim, ok, printJson } from '../lib/output.js';
 import { setOffline } from '../lib/net.js';
+import { bad, bold, configureOutput, dim, ok, printJson } from '../lib/output.js';
 import { detectLockfile, loadGraph, parseLockfileContent } from '../lockfile/detect.js';
 import { enumeratePaths, matchPackages } from '../lockfile/paths.js';
 import { type DependencyPath, ROOT, type ResolutionGraph } from '../lockfile/types.js';
@@ -68,17 +68,18 @@ export async function runCheck(
   const dirs = globals.dir.length > 0 ? globals.dir : [process.cwd()];
 
   let incident: IncidentBundle | undefined;
+  let effectiveQueries = queries;
   if (options.incident) {
     incident = loadIncidents().get(options.incident);
     if (!incident) {
       const known = [...loadIncidents().keys()].sort().join(', ');
       throw new ExecError(`unknown incident id "${options.incident}"`, `known incidents: ${known}`);
     }
-    queries = incidentQueries(incident);
+    effectiveQueries = incidentQueries(incident);
   }
 
   if (options.history) {
-    const query = queries[0];
+    const query = effectiveQueries[0];
     if (query === undefined) throw new ExecError('--history requires exactly one package query');
     return await runHistory(query, dirs, globals);
   }
@@ -86,7 +87,7 @@ export async function runCheck(
   const dirResults: DirResult[] = [];
   for (const dir of dirs) {
     const graph = await loadGraph(dir);
-    const results = queries.map((query) => ({
+    const results = effectiveQueries.map((query) => ({
       query,
       hits: findHits(graph, query),
     }));
@@ -104,7 +105,9 @@ export async function runCheck(
   if (globals.json) {
     printJson({
       command: 'check',
-      incident: incident ? { id: incident.id, name: incident.name, date: incident.date } : undefined,
+      incident: incident
+        ? { id: incident.id, name: incident.name, date: incident.date }
+        : undefined,
       dirs: dirResults.map((d) => ({
         dir: d.dir,
         lockfile: d.lockfile,
@@ -164,7 +167,9 @@ function renderHuman(
   globals: GlobalOptions,
 ): void {
   if (incident) {
-    console.log(`${bold('incident')}  ${incident.name} ${dim(`(${incident.id}, ${incident.date})`)}`);
+    console.log(
+      `${bold('incident')}  ${incident.name} ${dim(`(${incident.id}, ${incident.date})`)}`,
+    );
     console.log(dim(incident.summary));
     console.log();
   }
@@ -184,7 +189,7 @@ function renderHuman(
           console.log(`       ${renderTrace(path)}`);
         }
         if (hit.truncated) {
-          console.log(dim(`       …more paths omitted (cap 500)`));
+          console.log(dim('       …more paths omitted (cap 500)'));
         }
       }
     }

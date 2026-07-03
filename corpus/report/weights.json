@@ -1,0 +1,105 @@
+{
+  "note": "PROVISIONAL — gated by separation-report.md. Not final until the full top-500 corpus run.",
+  "generatedAt": "2026-07-03",
+  "layer1": {
+    "lifecycle-scripts": {
+      "absolute": "med",
+      "delta": "critical"
+    },
+    "binding-gyp": {
+      "absolute": "low",
+      "delta": "critical"
+    },
+    "agent-hooks": {
+      "absolute": "med",
+      "delta": "critical"
+    },
+    "ide-tasks": {
+      "absolute": "med",
+      "delta": "high"
+    },
+    "size-delta": {
+      "absolute": "none",
+      "delta": "high"
+    },
+    "dep-introduction": {
+      "absolute": "none",
+      "delta": "high"
+    },
+    "obfuscation": {
+      "absolute": "med",
+      "delta": "high"
+    },
+    "phantom-deps": {
+      "absolute": "med",
+      "delta": "none"
+    }
+  },
+  "obfuscationCutoffs": {
+    "hexPerKb": 40,
+    "hexMinBytes": 2048,
+    "packedLineLength": 50000,
+    "packedMaxWhitespace": 0.05
+  },
+  "gradeMap": {
+    "critical": "F",
+    "high": "D",
+    "med": "C",
+    "low": "B",
+    "none": "A"
+  },
+  "measured": {
+    "benignPackages": 60,
+    "benignDeltaPairs": 60,
+    "maliciousFixtures": 16,
+    "benignHighOrWorseAbsoluteRatePct": 0,
+    "benignDeltaCriticalPackages": 0,
+    "perAnalyzer": {
+      "lifecycle-scripts": {
+        "benignAbsHits": 5,
+        "benignDeltaHits": 0,
+        "malDeltaHits": 5
+      },
+      "binding-gyp": {
+        "benignAbsHits": 0,
+        "benignDeltaHits": 0,
+        "malDeltaHits": 2
+      },
+      "agent-hooks": {
+        "benignAbsHits": 0,
+        "benignDeltaHits": 0,
+        "malDeltaHits": 2
+      },
+      "ide-tasks": {
+        "benignAbsHits": 0,
+        "benignDeltaHits": 0,
+        "malDeltaHits": 2
+      },
+      "size-delta": {
+        "benignAbsHits": 0,
+        "benignDeltaHits": 0,
+        "malDeltaHits": 3
+      },
+      "dep-introduction": {
+        "benignAbsHits": 0,
+        "benignDeltaHits": 0,
+        "malDeltaHits": 2
+      },
+      "obfuscation": {
+        "benignAbsHits": 2,
+        "benignDeltaHits": 0,
+        "malDeltaHits": 3
+      },
+      "phantom-deps": {
+        "benignAbsHits": 2,
+        "benignDeltaHits": 0,
+        "malDeltaHits": 2
+      }
+    }
+  },
+  "gate": {
+    "pass": true,
+    "allMaliciousF": true,
+    "benignDeltaClean": true
+  }
+}

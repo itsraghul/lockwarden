@@ -11,3 +11,7 @@ export type {
   PackageArtifact,
   Signal,
 } from '../../packages/cli/src/analyzers/types.ts';
+
+export * from './analyzers/index.ts';
+export { readPackageEntries, stripTopDir, tarballToArtifact } from './artifact.ts';
+export { type TarWriteEntry, writeTarGz } from './tar-write.ts';
