@@ -5,3 +5,5 @@ packages:
 allowBuilds:
   '@biomejs/biome': true
   esbuild: true
+minimumReleaseAgeExclude:
+  - lockwarden@0.1.0
