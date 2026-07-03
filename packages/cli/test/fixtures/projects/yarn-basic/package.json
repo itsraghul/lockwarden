@@ -1,0 +1,13 @@
+{
+  "name": "yarn-basic",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@scope/util": "^2.0.0",
+    "left-pad": "^1.3.0",
+    "safe-logger": "^1.0.0"
+  },
+  "devDependencies": {
+    "test-runner-lite": "^5.0.0"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "name": "hit-transitive",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "app-lib": "^1.0.0",
+    "modern-lib": "^4.0.0",
+    "other-lib": "^2.0.0"
+  }
+}

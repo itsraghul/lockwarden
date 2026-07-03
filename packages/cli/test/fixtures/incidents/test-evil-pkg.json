@@ -1,0 +1,12 @@
+{
+  "id": "test-evil-pkg",
+  "name": "Test fixture incident (never shipped)",
+  "date": "2026-01-01",
+  "summary": "Local-only bundle used by integration tests via LOCKWARDEN_INCIDENT_DIR.",
+  "packages": [
+    {
+      "name": "evil-pkg",
+      "versions": ["1.2.3"]
+    }
+  ]
+}

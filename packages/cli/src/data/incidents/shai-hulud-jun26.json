@@ -1,0 +1,17 @@
+{
+  "id": "shai-hulud-jun26",
+  "name": "Shai-Hulud / node-gyp worm wave (Jun 2026)",
+  "date": "2026-06-09",
+  "summary": "Worm family that evolved from lifecycle scripts to AI-agent SessionStart hooks and IDE folder-open tasks, then to node-gyp build hooks (57 packages in the June wave). Moved faster than known-bad databases could update. SEED LIST — partial; refresh this bundle from the public IOC feed before relying on it.",
+  "references": ["https://github.com/itsraghul/lockwarden/blob/main/docs/lockwarden-use-case-and-learnings.md"],
+  "packages": [
+    {
+      "name": "autotel",
+      "ranges": ["*"]
+    },
+    {
+      "name": "autotel-agent",
+      "ranges": ["*"]
+    }
+  ]
+}

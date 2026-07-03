@@ -1,0 +1,46 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`check --json > emits stable machine-readable output 1`] = `
+{
+  "command": "check",
+  "dirs": [
+    {
+      "dir": "<fixture>",
+      "lockfile": {
+        "path": "<fixture>/package-lock.json",
+        "type": "npm",
+      },
+      "queries": [
+        {
+          "hit": true,
+          "matches": [
+            {
+              "devOnly": false,
+              "name": "evil-pkg",
+              "paths": [
+                [
+                  "<root>",
+                  "app-lib@1.0.0",
+                  "evil-pkg@1.2.3",
+                ],
+                [
+                  "<root>",
+                  "other-lib@2.0.0",
+                  "nested-lib@3.0.1",
+                  "evil-pkg@1.2.3",
+                ],
+              ],
+              "truncated": false,
+              "version": "1.2.3",
+            },
+          ],
+          "query": "evil-pkg@1.2.3",
+        },
+      ],
+      "warnings": [],
+    },
+  ],
+  "exitCode": 1,
+  "hit": true,
+}
+`;
