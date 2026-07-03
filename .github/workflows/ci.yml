@@ -10,7 +10,9 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: [20, 22]
+        # pnpm 11 needs Node >= 22.13, so the pipeline runs on 22/24.
+        # The CLI's Node 20 engine floor is verified by node20-smoke below.
+        node: [22, 24]
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -29,3 +31,36 @@ jobs:
         run: |
           npm publish --dry-run --json 2>/dev/null \
             | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const j=JSON.parse(s);const files=j.files.map(f=>f.path).sort();console.log(files.join("\n"));const fs=require("fs");const expected=fs.readFileSync("expected-tarball-files.txt","utf8").trim().split("\n").sort();const extra=files.filter(f=>!expected.includes(f) && !f.startsWith("dist/"));const missing=expected.filter(f=>!files.includes(f));if(extra.length||missing.length){console.error("Tarball mismatch. extra:",extra,"missing:",missing);process.exit(1)}})'
+      - name: upload dist for node20 smoke
+        if: matrix.node == 22
+        uses: actions/upload-artifact@v4
+        with:
+          name: cli-dist
+          path: packages/cli/dist/
+
+  # Proves the shipped artifact really runs on the Node 20 engine floor,
+  # without needing pnpm (which no longer supports Node 20).
+  node20-smoke:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.12.0
+      - uses: actions/download-artifact@v4
+        with:
+          name: cli-dist
+          path: packages/cli/dist/
+      - name: install runtime deps only
+        run: npm install --no-save commander yaml semver
+      - run: node packages/cli/dist/index.js --version
+      - name: exit-code matrix on fixtures
+        run: |
+          set +e
+          cd packages/cli/test/fixtures/projects/hit-transitive
+          node ../../../../dist/index.js check evil-pkg@1.2.3; [ $? -eq 1 ] || exit 1
+          node ../../../../dist/index.js check not-here@1.0.0; [ $? -eq 0 ] || exit 1
+          cd ../corrupt
+          node ../../../../dist/index.js check x@1.0.0; [ $? -eq 2 ] || exit 1
+          echo "node20 exit-code matrix OK"
