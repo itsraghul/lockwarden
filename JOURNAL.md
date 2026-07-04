@@ -5,6 +5,39 @@
 > what's new, what changed, what's pending. Durable decisions go to
 > [MEMORY.md](MEMORY.md); this file is the timeline.
 
+## 2026-07-03 — audit + scoring + SARIF built (Phase 4 → v0.2 pending publish)
+
+**New — `lockwarden audit`, the execution-surface wedge:**
+- Absolute mode: analyzes what's actually installed in node_modules (hoisted,
+  pnpm-store, and nested layouts), zero network — grades A–F per package +
+  project rollup
+- `--diff <base-ref>`: the PR flow — delta-scores only changed packages,
+  fetching previous tarballs from the base lockfile's own resolved URLs
+  (SRI-verified, cached `~/.lockwarden/cache`); introduced execution surface
+  scores Critical per the corpus-calibrated weights
+- `--deep`: full-tree delta vs previous published versions (slow by design)
+- Layer-2 known-bad overlay: vendored OSV seed snapshot + incident bundles —
+  any hit is Critical/F regardless of Layer 1
+- `--sarif` (SARIF 2.1.0, stable fingerprints, Low suppressed unless
+  `--verbose`), `--threshold` with grade-letter aliases
+
+**Also:**
+- Analyzers PROMOTED corpus → `src/analyzers/` (verbatim, per build order);
+  corpus now re-validates the shipped modules via shims; `scoring/weights.ts`
+  transcribed from corpus report @25ffb31 with the elevation layer
+- GitHub Action wrapper (`packages/action`, Phase 5): composite node22,
+  pinned CLI version, SARIF upload via codeql-action — tag `@v1` after 0.2.0
+  publishes
+- CI self-audit gate: `audit --ci --threshold high` on our own tree (grade C,
+  31/320 flagged — all expected med absolutes on build tooling; exit 0)
+- Project memory system: MEMORY.md + JOURNAL.md wired into CLAUDE.md
+- Tests: 82 → **163** (scoring engine, lockdiff, node_modules locator, audit
+  integration incl. cold/warm-cache `--offline` proofs)
+
+**Pending:** publish 0.2.0 (changeset staged), tag action `@v1` after, then
+Phase 6 (`drift`, `scan`, `secrets`) → Phase 7 (incident-bundle automation) →
+Phase 8 (Starlight site on lockwarden.dev).
+
 ## 2026-07-03 — v0.1.0 shipped 🚀 (Phases 0–3)
 
 **Published:** [`lockwarden@0.1.0`](https://www.npmjs.com/package/lockwarden) on npm,

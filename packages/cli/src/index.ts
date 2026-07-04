@@ -36,6 +36,21 @@ function buildProgram(): Command {
     .option('--offline', 'hard-fail any network call (exit 2)', false);
 
   program
+    .command('audit')
+    .description('execution-surface audit of the resolved dependency tree')
+    .option(
+      '--diff <base-ref>',
+      'delta-score only packages whose resolved version changed vs a git ref',
+    )
+    .option('--deep', 'full-tree delta scan (fetches previous version of every dep — slow)', false)
+    .option('--verbose', 'include Low findings in SARIF output', false)
+    .action(async (options, command: Command) => {
+      const { runAudit } = await import('./commands/audit.js');
+      const exitCode = await runAudit(options, command.optsWithGlobals());
+      process.exitCode = exitCode;
+    });
+
+  program
     .command('check')
     .description('incident triage: report every path by which a package enters the tree')
     .argument('[queries...]', 'package queries: <pkg>, <pkg>@<version>, <pkg>@<range>')

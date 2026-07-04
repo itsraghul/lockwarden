@@ -1,0 +1,139 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`toSarif > produces a stable SARIF 2.1.0 document (snapshot) 1`] = `
+{
+  "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+  "runs": [
+    {
+      "results": [
+        {
+          "level": "error",
+          "locations": [
+            {
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "evil-pkg@6.6.6",
+                },
+              ],
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "package-lock.json",
+                },
+              },
+            },
+          ],
+          "message": {
+            "text": "evil-pkg@6.6.6: postinstall script introduced in 6.6.6 (absent in 6.6.5)",
+          },
+          "partialFingerprints": {
+            "lockwarden/v1": "9632080ed1a2e4a970016f4e38434e4fe66be54928cc1df150b7f2d3e3d7e9ea",
+          },
+          "ruleId": "LW001D-LIFECYCLE-INTRODUCED",
+          "ruleIndex": 0,
+        },
+        {
+          "level": "error",
+          "locations": [
+            {
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "evil-pkg@6.6.6",
+                },
+              ],
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "package-lock.json",
+                },
+              },
+            },
+          ],
+          "message": {
+            "text": "evil-pkg@6.6.6: known-bad seed",
+          },
+          "partialFingerprints": {
+            "lockwarden/v1": "fd85d0bb76756ae7e46443ab7cf819546dbe53cd83fe15258b9f3ebb98af186e",
+          },
+          "ruleId": "LW2-OSV-MAL-2026-9999",
+          "ruleIndex": 1,
+        },
+        {
+          "level": "warning",
+          "locations": [
+            {
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "evil-pkg@6.6.6",
+                },
+              ],
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "package-lock.json",
+                },
+              },
+            },
+          ],
+          "message": {
+            "text": "evil-pkg@6.6.6: .vscode/tasks.json appeared in 6.6.6",
+          },
+          "partialFingerprints": {
+            "lockwarden/v1": "e3bece3981d26c2def879e77231e5167c278a9abb477a903ccbbd306e12dc161",
+          },
+          "ruleId": "LW004D-IDE-TASK-INTRODUCED",
+          "ruleIndex": 2,
+        },
+        {
+          "level": "note",
+          "locations": [
+            {
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "evil-pkg@6.6.6",
+                },
+              ],
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "package-lock.json",
+                },
+              },
+            },
+          ],
+          "message": {
+            "text": "evil-pkg@6.6.6: hex-encoded string table in lib/index.js",
+          },
+          "partialFingerprints": {
+            "lockwarden/v1": "9a9d9edb34df933b84dcbe8f219490f5c76990697cb10315c30954b7388ea617",
+          },
+          "ruleId": "LW007-OBFUSCATION-MARKERS",
+          "ruleIndex": 3,
+        },
+      ],
+      "tool": {
+        "driver": {
+          "informationUri": "https://github.com/itsraghul/lockwarden",
+          "name": "lockwarden",
+          "rules": [
+            {
+              "helpUri": "https://github.com/itsraghul/lockwarden#readme",
+              "id": "LW001D-LIFECYCLE-INTRODUCED",
+            },
+            {
+              "helpUri": "https://github.com/itsraghul/lockwarden#readme",
+              "id": "LW2-OSV-MAL-2026-9999",
+            },
+            {
+              "helpUri": "https://github.com/itsraghul/lockwarden#readme",
+              "id": "LW004D-IDE-TASK-INTRODUCED",
+            },
+            {
+              "helpUri": "https://github.com/itsraghul/lockwarden#readme",
+              "id": "LW007-OBFUSCATION-MARKERS",
+            },
+          ],
+          "version": "1.2.3",
+        },
+      },
+    },
+  ],
+  "version": "2.1.0",
+}
+`;

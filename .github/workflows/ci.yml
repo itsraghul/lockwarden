@@ -33,6 +33,10 @@ jobs:
         run: |
           npm pack --dry-run --json 2>/dev/null \
             | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{const j=JSON.parse(s);const pkg=Array.isArray(j)?j[0]:j;const files=pkg.files.map(f=>f.path).sort();console.log(files.join("\n"));const fs=require("fs");const expected=fs.readFileSync("expected-tarball-files.txt","utf8").trim().split("\n").sort();const extra=files.filter(f=>!expected.includes(f) && !f.startsWith("dist/"));const missing=expected.filter(f=>!files.includes(f));if(extra.length||missing.length){console.error("Tarball mismatch. extra:",extra,"missing:",missing);process.exit(1)}})'
+      # CLAUDE.md rule 8: run lockwarden on ourselves — our own tree is a
+      # marketing artifact. Fails the build on any High+ finding.
+      - name: self-audit
+        run: node packages/cli/dist/index.js audit --ci --threshold high
       - name: upload dist for node20 smoke
         if: matrix.node == 22
         uses: actions/upload-artifact@v4

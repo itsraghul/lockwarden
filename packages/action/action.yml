@@ -1,0 +1,53 @@
+name: lockwarden
+description: >-
+  Audit what your npm dependency tree can execute — lifecycle scripts, native
+  build hooks, AI-agent hooks, IDE task files — on every dependency bump.
+  Local-first: nothing leaves the runner.
+author: itsraghul
+branding:
+  icon: shield
+  color: purple
+
+inputs:
+  command:
+    description: 'lockwarden command to run: audit | check'
+    default: audit
+  diff-base:
+    description: 'git ref to delta-score against (PR flow: the PR base sha)'
+    default: ''
+  threshold:
+    description: minimum severity that fails the check (low|med|high|critical)
+    default: high
+  sarif:
+    description: upload findings to the GitHub Security tab as SARIF
+    default: 'true'
+  version:
+    description: >-
+      lockwarden CLI version to run. Pinned by default — bumped by the release
+      workflow so the action never floats on latest.
+    # NOTE: @v1 of this action is tagged only once lockwarden 0.2.0 (audit) is on npm.
+    default: 0.2.0
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 22
+    - name: run lockwarden
+      shell: bash
+      run: |
+        ARGS="${{ inputs.command }} --ci --threshold ${{ inputs.threshold }}"
+        if [ -n "${{ inputs.diff-base }}" ]; then
+          ARGS="$ARGS --diff ${{ inputs.diff-base }}"
+        fi
+        if [ "${{ inputs.sarif }}" = "true" ]; then
+          npx --yes "lockwarden@${{ inputs.version }}" $ARGS --sarif > lockwarden.sarif
+        else
+          npx --yes "lockwarden@${{ inputs.version }}" $ARGS
+        fi
+    - name: upload SARIF
+      if: inputs.sarif == 'true' && always()
+      uses: github/codeql-action/upload-sarif@v3
+      with:
+        sarif_file: lockwarden.sarif

@@ -7,6 +7,7 @@ import { join } from 'node:path';
 import axiosMar26 from './incidents/axios-mar26.json' with { type: 'json' };
 import nodeIpcMay26 from './incidents/node-ipc-may26.json' with { type: 'json' };
 import shaiHuludJun26 from './incidents/shai-hulud-jun26.json' with { type: 'json' };
+import osvSnapshot from './osv-npm-snapshot.json' with { type: 'json' };
 
 export interface IncidentPackage {
   name: string;
@@ -45,4 +46,26 @@ export function loadIncidents(): Map<string, IncidentBundle> {
     }
   }
   return incidents;
+}
+
+/**
+ * One entry in the vendored OSV npm snapshot (a subset of OSV.dev data,
+ * npm ecosystem only). Entries with neither `versions` nor `ranges` — or a
+ * `"*"` range — flag every version of the package.
+ */
+export interface OsvEntry {
+  id: string;
+  package: string;
+  versions?: string[];
+  ranges?: string[];
+  summary: string;
+}
+
+/**
+ * Vendored OSV snapshot, inlined into the single-file build by esbuild.
+ * The seed data is refreshed at release time — release cadence IS the
+ * data pipeline (no runtime API, ever).
+ */
+export function loadOsvSnapshot(): OsvEntry[] {
+  return osvSnapshot as OsvEntry[];
 }

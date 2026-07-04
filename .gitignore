@@ -1,4 +1,6 @@
 node_modules/
+# committed audit-fixture trees are the test corpus, not real installs
+!packages/cli/test/fixtures/projects/*/node_modules/
 dist/
 coverage/
 *.log

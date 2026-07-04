@@ -1,0 +1,7 @@
+{
+  "name": "audit-layer2",
+  "version": "1.0.0",
+  "dependencies": {
+    "plain-crypto-js": "^1.0.0"
+  }
+}
