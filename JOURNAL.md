@@ -1,11 +1,55 @@
 # JOURNAL.md — build progression
 
+## 2026-07-04 — v1 command surface complete + site (Phases 6–8, PR pending)
+
+**New commands (v0.3 changeset staged):**
+- `drift [--base <ref>]` — lockfile tampering: integrity swaps (Critical),
+  unexplained version changes, resolved-URL host moves, patch/minor-introduced
+  packages; provenance strictly informational
+- `scan <artifact> | --image` — what's ACTUALLY on disk: vendored node_modules
+  in tarballs/zips/dirs/docker-save layers (later-layer-wins + whiteouts),
+  incident fileIocs sha256 matching, fully offline
+- `secrets` — 15 curated rules + entropy, dependency install-path scanning,
+  always-masked output
+
+**Automation (Phase 7):** incident-bundle.yml — one dispatch: validate IOC JSON
+→ self-test (hit exits 1 / clean exits 0) → npm patch publish FIRST → version
+commit lands via auto-merge PR. incidents/index.ts is now generated
+(scripts/generate-incident-index.ts) so bundles never hand-edit source.
+
+**Site (Phase 8):** Astro Starlight in site/, 12 pages (landing + command docs +
+trust model + scoring + incidents), zero external resources, links validated at
+build; deploys to GitHub Pages via site.yml with CNAME lockwarden.dev.
+Post-merge: enable Pages (Source: GitHub Actions) + point DNS.
+
+**Repo protection:** main now requires PR + green CI (test 22/24, node20-smoke),
+no direct pushes for anyone, no force-push/deletion. Auto-merge enabled.
+
+Tests: 163 → **270**. All work on feat/v0.3-drift-scan-secrets → single PR.
+
 > Release-notes-style log of what shipped and when, newest first. CLAUDE.md points
 > here: append an entry per work session / release. Keep entries scannable —
 > what's new, what changed, what's pending. Durable decisions go to
 > [MEMORY.md](MEMORY.md); this file is the timeline.
 
-## 2026-07-03 — audit + scoring + SARIF built (Phase 4 → v0.2 pending publish)
+## 2026-07-04 — v0.2.0 shipped 🚀 via the automated release loop
+
+First fully-automated release: changeset → Version Packages PR → merge → CI
+publish through **npm Trusted Publishing (OIDC)** — no token, no 2FA, and the
+package carries a **SLSA provenance attestation**. Published `audit` verified
+via `npx lockwarden@0.2.0` (layer-2 fixture grades F, exit 1).
+
+Release-pipeline hardening en route (each fix kills a failure class):
+- Repo setting enabled: Actions may create PRs (changesets needs it); default
+  workflow token kept read-only
+- node20-smoke installs the CLI's pinned dep ranges, not bare latest
+  (commander 15 raised its floor to Node 22 → see MEMORY.md)
+- biome no longer formats package.json (changesets re-serializes it each bump)
+
+**Pending:** tag `v1` on the Action (after this entry lands), unpublish 0.0.1
+(~Jul 6 window), grow corpus to top-500 before declaring weights final.
+
+## 2026-07-03 — audit + scoring + SARIF built (Phase 4 → v0.2)
 
 **New — `lockwarden audit`, the execution-surface wedge:**
 - Absolute mode: analyzes what's actually installed in node_modules (hoisted,

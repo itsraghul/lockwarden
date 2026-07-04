@@ -1,0 +1,13 @@
+{
+  "id": "scan-ioc-test",
+  "name": "Scan file-IOC test bundle (never shipped)",
+  "date": "2026-01-01",
+  "summary": "Local-only bundle exercising scan fileIocs sha256 matching.",
+  "packages": [],
+  "fileIocs": [
+    {
+      "path": "payload.js",
+      "sha256": "56ea9a39a4c67cce07eb0036543586bd9783c1fa0dd0d6d6af31a56190c7143c"
+    }
+  ]
+}

@@ -4,9 +4,8 @@ import { join } from 'node:path';
 // Vendored bundles are inlined into the single-file build by esbuild —
 // advisory data ships in the npm package; updates arrive as npm releases.
 // That release cadence IS the data pipeline (no runtime API, ever).
-import axiosMar26 from './incidents/axios-mar26.json' with { type: 'json' };
-import nodeIpcMay26 from './incidents/node-ipc-may26.json' with { type: 'json' };
-import shaiHuludJun26 from './incidents/shai-hulud-jun26.json' with { type: 'json' };
+// incidents/index.ts is GENERATED — scripts/generate-incident-index.ts.
+import { VENDORED_INCIDENTS } from './incidents/index.ts';
 import osvSnapshot from './osv-npm-snapshot.json' with { type: 'json' };
 
 export interface IncidentPackage {
@@ -25,7 +24,7 @@ export interface IncidentBundle {
   fileIocs?: Array<{ path: string; sha256: string }>;
 }
 
-const VENDORED: IncidentBundle[] = [axiosMar26, nodeIpcMay26, shaiHuludJun26];
+const VENDORED: IncidentBundle[] = VENDORED_INCIDENTS;
 
 /**
  * All known incident bundles. LOCKWARDEN_INCIDENT_DIR may add local bundles

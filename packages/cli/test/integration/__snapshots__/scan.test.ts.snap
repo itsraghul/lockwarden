@@ -1,0 +1,159 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`scan — baked-in postinstall (tampered dep pre-baked in node_modules) > --json emits the stable ScanReport shape 1`] = `
+{
+  "artifact": {
+    "kind": "tgz",
+    "path": "<fixtures>/app-baked-postinstall.tgz",
+    "roots": 2,
+  },
+  "command": "scan",
+  "packages": [
+    {
+      "findings": [
+        {
+          "layer": 1,
+          "severity": "med",
+          "signal": {
+            "analyzer": "lifecycle-scripts",
+            "code": "LW001-LIFECYCLE",
+            "evidence": {
+              "detail": "lifecycle script "postinstall" runs automatically on install",
+              "excerpt": ""postinstall": "node install.js"",
+              "file": "package.json",
+            },
+            "kind": "absolute",
+            "metrics": {
+              "scriptLength": 15,
+            },
+            "package": {
+              "name": "evil-thing",
+              "version": "1.0.1",
+            },
+          },
+        },
+        {
+          "layer": 1,
+          "severity": "med",
+          "signal": {
+            "analyzer": "obfuscation",
+            "code": "LW007-OBFUSCATION",
+            "evidence": {
+              "detail": "obfuscation markers in install-path file: hex-array density 111.36/KB",
+              "file": "install.js",
+            },
+            "kind": "absolute",
+            "metrics": {
+              "evalChain": 0,
+              "hexPerKb": 111.36,
+              "packedLine": 0,
+            },
+            "package": {
+              "name": "evil-thing",
+              "version": "1.0.1",
+            },
+          },
+        },
+      ],
+      "grade": "C",
+      "key": "evil-thing@1.0.1",
+      "name": "evil-thing",
+      "root": "package/node_modules/evil-thing",
+      "version": "1.0.1",
+    },
+  ],
+  "rollup": {
+    "counts": {
+      "critical": 0,
+      "high": 0,
+      "low": 0,
+      "med": 2,
+      "none": 0,
+    },
+    "grade": "C",
+    "packagesAnalyzed": 2,
+    "packagesFlagged": 1,
+  },
+  "warnings": [],
+}
+`;
+
+exports[`scan — baked-in postinstall (tampered dep pre-baked in node_modules) > --sarif emits SARIF 2.1.0 with artifact uri + embedded-root logical locations 1`] = `
+{
+  "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+  "runs": [
+    {
+      "results": [
+        {
+          "level": "note",
+          "locations": [
+            {
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "package/node_modules/evil-thing:evil-thing@1.0.1",
+                },
+              ],
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "<fixtures>/app-baked-postinstall.tgz",
+                },
+              },
+            },
+          ],
+          "message": {
+            "text": "package/node_modules/evil-thing:evil-thing@1.0.1: lifecycle script "postinstall" runs automatically on install",
+          },
+          "partialFingerprints": {
+            "lockwarden/v1": "93253a66ef5b4691309e2724b16be109e56dcb36d2fae98a868a42bc384893ad",
+          },
+          "ruleId": "LW001-LIFECYCLE",
+          "ruleIndex": 0,
+        },
+        {
+          "level": "note",
+          "locations": [
+            {
+              "logicalLocations": [
+                {
+                  "fullyQualifiedName": "package/node_modules/evil-thing:evil-thing@1.0.1",
+                },
+              ],
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "<fixtures>/app-baked-postinstall.tgz",
+                },
+              },
+            },
+          ],
+          "message": {
+            "text": "package/node_modules/evil-thing:evil-thing@1.0.1: obfuscation markers in install-path file: hex-array density 111.36/KB",
+          },
+          "partialFingerprints": {
+            "lockwarden/v1": "7b8e38958df78be471c488ab8bcc587d4e46cfeb530982d9b4f812a40b68eac4",
+          },
+          "ruleId": "LW007-OBFUSCATION",
+          "ruleIndex": 1,
+        },
+      ],
+      "tool": {
+        "driver": {
+          "informationUri": "https://github.com/itsraghul/lockwarden",
+          "name": "lockwarden",
+          "rules": [
+            {
+              "helpUri": "https://github.com/itsraghul/lockwarden#readme",
+              "id": "LW001-LIFECYCLE",
+            },
+            {
+              "helpUri": "https://github.com/itsraghul/lockwarden#readme",
+              "id": "LW007-OBFUSCATION",
+            },
+          ],
+          "version": "<version>",
+        },
+      },
+    },
+  ],
+  "version": "2.1.0",
+}
+`;

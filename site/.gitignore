@@ -1,0 +1,2 @@
+# Astro build artifacts (dist/ is already ignored at the repo root)
+.astro/

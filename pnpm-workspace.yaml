@@ -1,9 +1,13 @@
 packages:
   - packages/*
   - corpus
+  - site
 # Explicitly approved install scripts (pnpm blocks the rest — keep it that way).
 allowBuilds:
   '@biomejs/biome': true
   esbuild: true
+  # sharp (astro image dep, site-only): prebuilt binaries ship as optional deps;
+  # its install script is unnecessary — explicitly denied, not just unlisted.
+  sharp: false
 minimumReleaseAgeExclude:
   - lockwarden@0.1.0
