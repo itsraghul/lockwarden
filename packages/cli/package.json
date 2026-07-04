@@ -18,7 +18,7 @@
     "type": "git",
     "url": "git+https://github.com/itsraghul/lockwarden.git"
   },
-  "homepage": "https://github.com/itsraghul/lockwarden#readme",
+  "homepage": "https://lockwarden.dev",
   "bugs": "https://github.com/itsraghul/lockwarden/issues",
   "type": "module",
   "bin": {
