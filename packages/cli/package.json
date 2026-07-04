@@ -1,6 +1,6 @@
 {
   "name": "lockwarden",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Audit what your npm dependency tree can execute — lifecycle scripts, native build hooks, AI-agent hooks, IDE task files — and answer \"am I hit?\" during supply-chain incidents.",
   "keywords": [
     "supply-chain",
@@ -24,7 +24,11 @@
   "bin": {
     "lockwarden": "dist/index.js"
   },
-  "files": ["dist", "README.md", "LICENSE"],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "engines": {
     "node": ">=20.12"
   },
