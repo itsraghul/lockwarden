@@ -58,8 +58,11 @@ jobs:
         with:
           name: cli-dist
           path: packages/cli/dist/
-      - name: install runtime deps only
-        run: npm install --no-save commander yaml semver
+      - name: install runtime deps only (exact ranges the CLI pins — bare
+          names would pull latest, which may not support Node 20)
+        run: |
+          SPECS=$(node -e 'const d=require("./packages/cli/package.json").dependencies;process.stdout.write(Object.entries(d).map(([n,v])=>`${n}@${v}`).join(" "))')
+          npm install --no-save $SPECS
       - run: node packages/cli/dist/index.js --version
       - name: exit-code matrix on fixtures
         run: |

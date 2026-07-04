@@ -24,6 +24,11 @@
   on Node 22/24; the CLI's Node 20.12 engine floor is proven by the pnpm-free
   `node20-smoke` CI job that runs the built artifact against fixtures. Don't
   re-add Node 20 to the pnpm-based matrix.
+- **2026-07-04 — commander must stay on ^13 while the Node 20.12 engine floor
+  stands.** commander 15 (and 14) require Node ≥22; bumping it would silently
+  break the floor. The node20-smoke CI job installs the exact ranges from
+  packages/cli/package.json (not bare latest) and exists to catch precisely
+  this class of drift. Revisit when the engine floor moves to 22.
 - **2026-07-03 — Tarball gate parses `npm pack --dry-run --json`** (stable array
   shape across npm majors). `npm publish --dry-run --json` changed shape in npm 11
   and broke CI. Local interactive publishes still use `npm publish --dry-run` for
