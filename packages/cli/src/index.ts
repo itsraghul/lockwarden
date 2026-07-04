@@ -62,6 +62,34 @@ function buildProgram(): Command {
       process.exitCode = exitCode;
     });
 
+  program
+    .command('drift')
+    .description('lockfile & version-anomaly detection vs a base ref')
+    .option('--base <ref>', 'git ref to compare the lockfile against', 'main')
+    .action(async (options, command: Command) => {
+      const { runDrift } = await import('./commands/drift.js');
+      process.exitCode = await runDrift(options, command.optsWithGlobals());
+    });
+
+  program
+    .command('scan')
+    .description('execution-surface scan of an artifact: tarball, zip, dir, or docker-save image')
+    .argument('[artifact]', 'path to a tarball/zip/directory artifact')
+    .option('--image <docker-image>', 'scan a docker image (via docker save)')
+    .option('--verbose', 'include Low findings in SARIF output', false)
+    .action(async (artifact: string | undefined, options, command: Command) => {
+      const { runScan } = await import('./commands/scan.js');
+      process.exitCode = await runScan(artifact, options, command.optsWithGlobals());
+    });
+
+  program
+    .command('secrets')
+    .description('minimal hardcoded-secret scan of the project and dependency install paths')
+    .action(async (_options, command: Command) => {
+      const { runSecrets } = await import('./commands/secrets.js');
+      process.exitCode = await runSecrets(command.optsWithGlobals());
+    });
+
   return program;
 }
 

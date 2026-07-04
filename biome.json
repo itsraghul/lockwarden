@@ -31,6 +31,8 @@
   "files": {
     "ignore": [
       "dist/**",
+      "site/.astro/**",
+      "site/dist/**",
       "coverage/**",
       "corpus/cache/**",
       "corpus/generated/**",

@@ -54,6 +54,19 @@
   file is the ONLY legitimate source for scoring/weights.ts.
 - Weights stay provisional until the benign set grows to the full top-500.
 
+## Repo protection (2026-07-04)
+
+- `main` is protected by ruleset `protect-main` (id 18502842): PR required
+  (0 approvals — solo repo, you can't approve your own PR), required checks
+  `test (22)` / `test (24)` / `node20-smoke`, no force-push, no deletion,
+  **no bypass actors — direct pushes are rejected for everyone, including the
+  owner and workflows**. All work lands via branch → PR → green CI → merge.
+- Consequences wired in: incident-bundle.yml publishes to npm FIRST, then lands
+  its version commit via `gh pr merge --auto --squash` (repo has auto-merge +
+  delete-branch-on-merge enabled). The changesets Version Packages flow is
+  unaffected (it was already PR-based). If a CI job is renamed, update the
+  ruleset's required checks or merges will deadlock.
+
 ## Environment / accounts
 
 - Repo-local git identity is `58110802+itsraghul@users.noreply.github.com`; the

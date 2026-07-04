@@ -1,0 +1,70 @@
+---
+title: lockwarden
+description: Audit what your npm dependency tree can execute — and answer "am I hit?" in seconds. Local-first, zero telemetry, zero accounts.
+template: splash
+hero:
+  title: Audit what your npm dependency tree can execute
+  tagline: Answer "am I hit?" in seconds during supply-chain incidents. Local-first, zero telemetry, zero accounts.
+  actions:
+    - text: Get started
+      link: /getting-started/
+      icon: right-arrow
+    - text: GitHub
+      link: https://github.com/itsraghul/lockwarden
+      icon: github
+      variant: minimal
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+## Incident day, zero install
+
+```bash
+# A named incident just hit the news — am I affected?
+npx lockwarden check --incident node-ipc-may26
+
+# Or check specific package versions against your lockfile:
+npx lockwarden check node-ipc@9.1.6
+```
+
+Answers come from your **resolved lockfile** — every transitive path by which the package
+enters your tree, not just what `package.json` claims. Exit `0` clean, `1` hit, `2` error.
+Nothing is uploaded anywhere; there is nowhere to upload it to.
+
+## A different question
+
+Everyone else asks *"is this package known-bad?"* — lockwarden asks
+**"what can this dependency tree execute, and what changed?"**
+
+<CardGrid stagger>
+  <Card title="Day-zero structural detection" icon="magnifier">
+    Advisory databases lag attacks by design. lockwarden scores the execution surface a
+    version bump *introduces* — a new install script, a new `binding.gyp`, a 25x file-size
+    jump, a new transitive dep in a patch release. Legitimate native packages carry build
+    hooks forever; attacks introduce them. Delta scoring needs no feed to fire.
+  </Card>
+  <Card title="Nothing leaves your machine" icon="laptop">
+    No account, no telemetry, no backend — ever. 2026 malware actively terminates CI
+    security agents and blocks their telemetry domains; lockwarden has no endpoint to
+    attack. Advisory data ships vendored inside the npm package, and <code>--offline</code>
+    hard-fails if any network call is even attempted.
+  </Card>
+  <Card title="The 2026 vectors" icon="warning">
+    Beyond lifecycle scripts: <code>binding.gyp</code> / node-gyp hooks that run even with
+    scripts disabled, AI-agent hooks and MCP manifests that fire on session start, IDE
+    folder-open task files, and tampered dependencies pre-baked inside vendored
+    <code>node_modules</code> that no registry-level scanner ever sees.
+  </Card>
+</CardGrid>
+
+## From one-liner to PR gate
+
+```yaml
+# .github/workflows/lockwarden.yml — the whole integration
+- uses: itsraghul/lockwarden/packages/action@v1
+  with:
+    diff-base: ${{ github.event.pull_request.base.sha }}
+```
+
+Delta-scored review of every dependency bump, findings in the GitHub Security tab you
+already use. [Set up the Action →](/github-action/)

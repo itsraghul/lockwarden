@@ -1,0 +1,9 @@
+{
+  "name": "secrets-fixture",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "dep-clean": "1.0.0",
+    "dep-with-script": "1.0.0"
+  }
+}
