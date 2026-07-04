@@ -5,7 +5,24 @@
 > what's new, what changed, what's pending. Durable decisions go to
 > [MEMORY.md](MEMORY.md); this file is the timeline.
 
-## 2026-07-03 — audit + scoring + SARIF built (Phase 4 → v0.2 pending publish)
+## 2026-07-04 — v0.2.0 shipped 🚀 via the automated release loop
+
+First fully-automated release: changeset → Version Packages PR → merge → CI
+publish through **npm Trusted Publishing (OIDC)** — no token, no 2FA, and the
+package carries a **SLSA provenance attestation**. Published `audit` verified
+via `npx lockwarden@0.2.0` (layer-2 fixture grades F, exit 1).
+
+Release-pipeline hardening en route (each fix kills a failure class):
+- Repo setting enabled: Actions may create PRs (changesets needs it); default
+  workflow token kept read-only
+- node20-smoke installs the CLI's pinned dep ranges, not bare latest
+  (commander 15 raised its floor to Node 22 → see MEMORY.md)
+- biome no longer formats package.json (changesets re-serializes it each bump)
+
+**Pending:** tag `v1` on the Action (after this entry lands), unpublish 0.0.1
+(~Jul 6 window), grow corpus to top-500 before declaring weights final.
+
+## 2026-07-03 — audit + scoring + SARIF built (Phase 4 → v0.2)
 
 **New — `lockwarden audit`, the execution-surface wedge:**
 - Absolute mode: analyzes what's actually installed in node_modules (hoisted,
