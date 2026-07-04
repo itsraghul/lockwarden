@@ -8,6 +8,12 @@ One-sentence differentiation vs Socket/Snyk/StepSecurity/npm-audit: **they ask "
 
 Full context lives in `docs/lockwarden-v1-spec.md` (what to build) and `docs/lockwarden-use-case-and-learnings.md` (why it's shaped this way). Read the spec before implementing any command.
 
+## Project memory & journal — read first, keep current
+
+- **`MEMORY.md`** (repo root) — durable decisions and constraints not derivable from code (naming/registry facts, toolchain gotchas, dependency-budget ledger, calibration decisions, accounts). **Read it at session start.** Add a dated entry whenever a non-obvious decision lands; never delete — strike through and annotate if superseded.
+- **`JOURNAL.md`** (repo root) — release-notes-style progression log, newest first. **Append an entry at the end of every work session and every release:** what's new, what changed/was fixed, what's pending. One entry per session/release; keep it scannable.
+- Division of labor: JOURNAL = timeline ("what happened"), MEMORY = decisions ("what we must remember"). Spec/docs stay authoritative for product scope; these two files never restate them.
+
 ## Hard rules — never violate, never re-litigate
 
 1. **Local-first, zero telemetry, zero accounts.** No analytics, no phone-home, no API backend — ever. Advisory data ships vendored in the npm package; updates happen via npm releases.
