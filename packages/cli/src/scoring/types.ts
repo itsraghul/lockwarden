@@ -29,12 +29,19 @@ export interface Layer2Finding {
 /** A signal with its corpus-gated severity attached. Layer 2 hits are always critical. */
 export type Finding = Layer1Finding | Layer2Finding;
 
+/** A finding matched by a baseline entry — kept visible, excluded from exit codes. */
+export type SuppressedFinding = Finding & {
+  suppression: { reason?: string; addedAt?: string; expires?: string };
+};
+
 export interface PackageReport {
   name: string;
   version: string;
   key: string; // "name@version"
   grade: Grade;
   findings: Finding[];
+  /** Present only when a baseline suppressed findings on this package. */
+  suppressed?: SuppressedFinding[];
 }
 
 export interface Rollup {
@@ -42,13 +49,17 @@ export interface Rollup {
   packagesAnalyzed: number;
   packagesFlagged: number;
   counts: Record<Severity, number>;
+  /** Present only when a baseline was applied. */
+  suppressedCounts?: Record<Severity, number>;
 }
 
 export interface AuditReport {
   command: 'audit';
   mode: 'absolute' | 'diff' | 'deep';
   lockfile: { path: string; type: string };
-  packages: PackageReport[]; // only packages with ≥1 finding
+  packages: PackageReport[]; // only packages with ≥1 active or suppressed finding
   rollup: Rollup;
   warnings: string[];
+  /** Present only when a baseline was applied. */
+  baseline?: { path: string; entries: number; matched: number; expired: number };
 }

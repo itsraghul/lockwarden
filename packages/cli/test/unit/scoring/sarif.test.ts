@@ -28,6 +28,7 @@ interface SarifDoc {
         logicalLocations: Array<{ fullyQualifiedName: string }>;
       }>;
       partialFingerprints: Record<string, string>;
+      suppressions?: Array<{ kind: string; justification?: string }>;
     }>;
   }>;
 }
@@ -155,6 +156,36 @@ describe('toSarif', () => {
     expect(fp).toBe(
       createHash('sha256').update('LW001D-LIFECYCLE-INTRODUCED:evil-pkg@6.6.6').digest('hex'),
     );
+  });
+
+  it('emits baseline-suppressed results with the SARIF suppressions property', () => {
+    const base = fixtureReport();
+    const [evil, meh] = base.packages;
+    if (evil === undefined || meh === undefined) throw new Error('fixture shape changed');
+    const finding = meh.findings[0];
+    if (finding === undefined) throw new Error('fixture shape changed');
+    const report: AuditReport = {
+      ...base,
+      packages: [
+        evil,
+        {
+          ...meh,
+          findings: [],
+          suppressed: [
+            { ...finding, suppression: { reason: 'native build reviewed', addedAt: '2026-07-05' } },
+          ],
+        },
+      ],
+    };
+    const d = toSarif(report, { toolVersion: '1.2.3', verbose: true }) as SarifDoc;
+    const results = d.runs[0]?.results ?? [];
+    const suppressedResult = results.find((r) => r.ruleId === 'LW002-BINDING-GYP-PRESENT');
+    expect(suppressedResult?.suppressions).toEqual([
+      { kind: 'external', justification: 'native build reviewed' },
+    ]);
+    const active = results.find((r) => r.ruleId === 'LW001D-LIFECYCLE-INTRODUCED');
+    expect(active).toBeDefined();
+    expect(active?.suppressions).toBeUndefined();
   });
 
   it("never emits 'none' — an empty report yields zero results and rules", () => {

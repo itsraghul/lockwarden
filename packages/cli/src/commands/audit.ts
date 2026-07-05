@@ -1,4 +1,4 @@
-import { relative } from 'node:path';
+import { join, relative, resolve } from 'node:path';
 import semver from 'semver';
 // Version is injected from package.json at build time by tsup (JSON inline).
 import pkgJson from '../../package.json' with { type: 'json' };
@@ -20,18 +20,24 @@ import { locateInstalled } from '../lib/node-modules.js';
 import { bad, bold, configureOutput, dim, paint, printJson, warn } from '../lib/output.js';
 import { loadGraph, parseLockfileContent } from '../lockfile/detect.js';
 import { type PkgKey, type ResolutionGraph, makeKey } from '../lockfile/types.js';
+import { applyBaseline, buildBaseline, loadBaseline, writeBaseline } from '../scoring/baseline.js';
 import { buildRollup, scorePackage } from '../scoring/engine.js';
 import { layer2Findings, loadLayer2Sources } from '../scoring/layer2.js';
 import { toSarif } from '../scoring/sarif.js';
 import { exceedsThreshold, parseThreshold } from '../scoring/threshold.js';
-import type { AuditReport, Finding, PackageReport } from '../scoring/types.js';
+import type { AuditReport, Finding, PackageReport, Rollup } from '../scoring/types.js';
 import type { Grade, Severity } from '../scoring/weights.js';
 
 export interface AuditOptions {
   diff?: string;
   deep?: boolean;
   verbose?: boolean;
+  /** true = auto-load default path; string = explicit path; false = --no-baseline. */
+  baseline?: string | boolean;
+  writeBaseline?: boolean;
 }
+
+export const BASELINE_FILENAME = '.lockwarden-baseline.json';
 
 const PACKAGE_ANALYZERS = ALL_ANALYZERS.filter((a) => a.scope === 'package');
 const TREE_ANALYZERS = ALL_ANALYZERS.filter((a) => a.scope === 'tree');
@@ -51,6 +57,15 @@ export async function runAudit(options: AuditOptions, globals: GlobalOptions): P
       '--diff and --deep are mutually exclusive',
       '--diff delta-scores the lockfile diff; --deep delta-scores the whole tree.',
     );
+  }
+  if (options.writeBaseline === true && (globals.json || globals.sarif)) {
+    throw new ExecError(
+      '--write-baseline is a maintenance action — run it without --json/--sarif',
+      'It writes the baseline file and prints a human summary.',
+    );
+  }
+  if (options.writeBaseline === true && options.baseline === false) {
+    throw new ExecError('--write-baseline and --no-baseline are contradictory');
   }
 
   const dirs = globals.dir.length > 0 ? globals.dir : [process.cwd()];
@@ -88,10 +103,54 @@ export async function runAudit(options: AuditOptions, globals: GlobalOptions): P
     reports.push(scorePackage(pkg, signalsByKey.get(key) ?? [], layer2));
   }
 
-  const flagged = reports
-    .filter((r) => r.findings.length > 0)
+  // Baseline: default path lives next to the audited lockfile's project dir;
+  // an explicit --baseline path resolves against cwd and must exist.
+  const baselinePath =
+    typeof options.baseline === 'string' ? resolve(options.baseline) : join(dir, BASELINE_FILENAME);
+
+  if (options.writeBaseline === true) {
+    const previous = await loadBaseline(baselinePath);
+    const built = buildBaseline(reports, pkgJson.version, new Date(), previous);
+    await writeBaseline(baselinePath, built.file);
+    const rel = relative(process.cwd(), baselinePath) || baselinePath;
+    console.log(`baseline written: ${rel} (${built.file.entries.length} entries)`);
+    for (const item of built.skipped) {
+      console.log(dim(`  skipped (never suppressible): ${item}`));
+    }
+    if (built.pruned > 0) console.log(dim(`  pruned ${built.pruned} stale entries`));
+    return ExitCode.Clean;
+  }
+
+  let scored = reports;
+  let baselineInfo: AuditReport['baseline'];
+  let suppressedCounts: Rollup['suppressedCounts'];
+  if (options.baseline !== false) {
+    const loaded = await loadBaseline(baselinePath);
+    if (loaded === null && typeof options.baseline === 'string') {
+      throw new ExecError(
+        `baseline ${baselinePath} not found`,
+        'Create it with `lockwarden audit --write-baseline`.',
+      );
+    }
+    if (loaded !== null) {
+      const applied = applyBaseline(reports, loaded, new Date());
+      scored = applied.reports;
+      warnings.push(...applied.warnings);
+      suppressedCounts = applied.suppressedCounts;
+      baselineInfo = {
+        path: baselinePath,
+        entries: loaded.entries.length,
+        matched: applied.matched,
+        expired: applied.expired,
+      };
+    }
+  }
+
+  const flagged = scored
+    .filter((r) => r.findings.length > 0 || (r.suppressed?.length ?? 0) > 0)
     .sort((a, b) => GRADE_RANK[b.grade] - GRADE_RANK[a.grade] || a.key.localeCompare(b.key));
-  const rollup = buildRollup(reports, graph.packages.size);
+  const rollup = buildRollup(scored, graph.packages.size);
+  if (suppressedCounts !== undefined) rollup.suppressedCounts = suppressedCounts;
 
   const report: AuditReport = {
     command: 'audit',
@@ -100,8 +159,10 @@ export async function runAudit(options: AuditOptions, globals: GlobalOptions): P
     packages: flagged,
     rollup,
     warnings,
+    ...(baselineInfo !== undefined ? { baseline: baselineInfo } : {}),
   };
 
+  // Exit code AFTER baseline filtering — only active findings count.
   const exitCode = exceedsThreshold(report, threshold) ? ExitCode.Findings : ExitCode.Clean;
 
   if (globals.sarif) {
@@ -404,6 +465,12 @@ function renderHuman(report: AuditReport, globals: GlobalOptions): void {
 
   const lockRel = relative(process.cwd(), report.lockfile.path) || report.lockfile.path;
   console.log(dim(`lockfile: ${lockRel} (${report.lockfile.type}) — mode: ${report.mode}`));
+  if (report.baseline !== undefined) {
+    const b = report.baseline;
+    const baseRel = relative(process.cwd(), b.path) || b.path;
+    const expired = b.expired > 0 ? `, ${b.expired} expired` : '';
+    console.log(dim(`baseline: ${b.matched} finding(s) suppressed (${baseRel}${expired})`));
+  }
   for (const warning of report.warnings) console.log(dim(`warning: ${warning}`));
 
   for (const pkg of report.packages) {
@@ -411,6 +478,10 @@ function renderHuman(report: AuditReport, globals: GlobalOptions): void {
     console.log(`  ${bold(pkg.key)} — ${paintGrade(pkg.grade, `grade ${pkg.grade}`)}`);
     for (const finding of pkg.findings) {
       console.log(`    ${findingLine(finding)}`);
+    }
+    for (const finding of pkg.suppressed ?? []) {
+      const code = finding.layer === 1 ? finding.signal.code : finding.code;
+      console.log(dim(`    [suppressed] ${code}`));
     }
   }
 }

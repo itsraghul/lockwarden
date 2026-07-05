@@ -52,7 +52,7 @@ Exit codes are the API: **`0`** clean · **`1`** findings at/above threshold · 
 | Command | Purpose |
 |---|---|
 | [`check`](https://lockwarden.dev/commands/check/) | Incident triage — every transitive path a package enters by; `--incident <id>` bundles; `--history` exposure windows. |
-| [`audit`](https://lockwarden.dev/commands/audit/) | Execution-surface scoring of the installed tree; `--diff <ref>` delta-scores a PR; `--deep` the whole tree. |
+| [`audit`](https://lockwarden.dev/commands/audit/) | Execution-surface scoring of the installed tree; `--diff <ref>` delta-scores a PR; `--deep` the whole tree; a checked-in [baseline](https://lockwarden.dev/commands/audit/#baseline) suppresses reviewed findings. |
 | [`drift`](https://lockwarden.dev/commands/drift/) | Lockfile tampering vs a base ref — integrity swaps, unexplained bumps, URL moves, patch-introduced deps. |
 | [`scan`](https://lockwarden.dev/commands/scan/) | Same analysis on an artifact on disk — tarball, zip, dir, or `docker save` layers. |
 | [`secrets`](https://lockwarden.dev/commands/secrets/) | Minimal hardcoded-credential scan, always masked. |

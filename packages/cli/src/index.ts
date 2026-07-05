@@ -44,6 +44,9 @@ function buildProgram(): Command {
     )
     .option('--deep', 'full-tree delta scan (fetches previous version of every dep — slow)', false)
     .option('--verbose', 'include Low findings in SARIF output', false)
+    .option('--baseline <path>', 'baseline file (default: <dir>/.lockwarden-baseline.json)')
+    .option('--no-baseline', 'ignore any baseline file')
+    .option('--write-baseline', 'create/update the baseline from current findings', false)
     .action(async (options, command: Command) => {
       const { runAudit } = await import('./commands/audit.js');
       const exitCode = await runAudit(options, command.optsWithGlobals());

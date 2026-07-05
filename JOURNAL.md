@@ -1,6 +1,25 @@
 # JOURNAL.md — build progression
 
-## 2026-07-05 — native-binary analyzer LW009 (v0.4 changeset staged, PR pending)
+## 2026-07-05 — audit baseline suppression (v0.4 changeset staged, PR pending)
+
+The CI-adoption unblocker: a checked-in `.lockwarden-baseline.json` of reviewed
+findings so `--threshold med`/`low` fails only on NEW execution surface.
+
+- `audit --write-baseline` / `--baseline <path>` / `--no-baseline`; auto-loads
+  from the audited dir. Version-independent matching (code + name); Layer-2,
+  critical, and grade-F delta findings are never suppressible (see MEMORY.md).
+- Suppressed findings stay visible everywhere: human `[suppressed]` lines,
+  additive `--json` fields (`suppressed`, `suppressedCounts`, `baseline`), SARIF
+  `suppressions` property (GitHub shows them as suppressed, not open).
+- Exit code computed AFTER filtering; existing snapshots byte-identical (no
+  baseline → no new fields). New `scoring/{baseline,fingerprint}.ts`; fixture
+  project `audit-baselined`. Tests 270 → 293.
+- Docs: site audit page (new Baseline section + real captured output),
+  json-output reference, both READMEs.
+
+**Pending:** merge PR → v0.4.0 release.
+
+## 2026-07-05 — native-binary analyzer LW009 (merged, in v0.4)
 
 Ninth analyzer, closing the largest uncovered execution vector: prebuilt
 `.node` binaries load native code at require-time with no `binding.gyp` and
@@ -18,7 +37,7 @@ possibly no lifecycle script — invisible to LW001/LW002 until now.
 - Docs: scoring tables (site + docs/SCORING.md), audit page, json-output
   analyzer enum, READMEs, CLAUDE.md summary.
 
-**Pending:** merge PR (alongside the sibling audit-baseline PR) → v0.4.0.
+**Pending:** merged to main; ships in v0.4.0 with the audit-baseline PR.
 
 ## 2026-07-05 — docs site overhaul (12 → 21 pages, PR pending)
 

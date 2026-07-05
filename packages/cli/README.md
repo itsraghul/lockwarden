@@ -73,11 +73,16 @@ versions). Bundled incidents include `axios-mar26`, `node-ipc-may26`, and
 lockwarden audit                    # absolute scan of the installed tree (offline)
 lockwarden audit --diff <base-ref>  # delta-score only packages that changed vs a git ref
 lockwarden audit --deep             # full-tree delta vs previous published versions (slow)
+lockwarden audit --write-baseline   # accept current findings into .lockwarden-baseline.json
 ```
 
 Grades each package **A–F** and rolls up to a project summary. `--diff` is the PR
 flow: it fetches previous tarballs only for changed packages (SRI-verified, cached),
 and scores what the change *introduced* — the signal every 2026 attack exhibited.
+
+A checked-in [baseline file](https://lockwarden.dev/commands/audit/#baseline) suppresses
+*reviewed* findings so CI fails only on new ones; suppressed findings stay visible in
+every output, and known-bad or Critical findings can never be baselined.
 
 ### `drift` — lockfile tampering detection
 
