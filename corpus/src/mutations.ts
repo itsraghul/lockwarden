@@ -16,7 +16,9 @@ export type MutationKind =
   | 'inject-mcp-manifest'
   | 'inject-vscode-task'
   | 'inflate-main-25x'
-  | 'add-phantom-dep';
+  | 'add-phantom-dep'
+  | 'inject-node-binary'
+  | 'inject-prebuild-fetcher';
 
 /** Bump the patch component of a semver-ish version; falls back to +".1". */
 export function patchBumpVersion(version: string): string {
@@ -168,6 +170,31 @@ export function applyMutation(entries: RawEntry[], kind: MutationKind): RawEntry
       const existing = out.find((e) => e.path === mainPath);
       const prevSize = existing?.size ?? 200;
       push(mainPath, inflatedMainSource(Math.max(prevSize * 25, 60_000)));
+      break;
+    }
+    case 'inject-node-binary': {
+      // Models a prebuilt-binary dropper: a .node file appears in a patch
+      // release with no gyp surface and no lifecycle script — it executes at
+      // require-time, invisible to LW001/LW002.
+      push('build/Release/lw_inert.node', INERT_MARKER);
+      break;
+    }
+    case 'inject-prebuild-fetcher': {
+      // Models an install-time binary fetcher: prebuild-install appears in
+      // deps plus an install script. Deliberately also trips lifecycle-scripts
+      // and binding-gyp ("node-gyp rebuild" fallback) — the realistic compound.
+      const deps =
+        manifest.dependencies !== null && typeof manifest.dependencies === 'object'
+          ? (manifest.dependencies as Record<string, unknown>)
+          : {};
+      deps['prebuild-install'] = '^7.1.0';
+      manifest.dependencies = deps;
+      const scripts =
+        manifest.scripts !== null && typeof manifest.scripts === 'object'
+          ? (manifest.scripts as Record<string, unknown>)
+          : {};
+      scripts.install = 'prebuild-install || node-gyp rebuild';
+      manifest.scripts = scripts;
       break;
     }
     case 'add-phantom-dep': {

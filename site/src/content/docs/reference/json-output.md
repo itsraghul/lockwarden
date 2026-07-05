@@ -180,7 +180,7 @@ A finding is either **Layer 1** (structural signal + corpus-gated severity) or
 | --- | --- | --- |
 | `layer` | `1` | Layer-1 (structural) finding |
 | `severity` | Severity | Corpus-gated weight for `(analyzer, kind)` |
-| `signal.analyzer` | string | One of `lifecycle-scripts`, `binding-gyp`, `agent-hooks`, `ide-tasks`, `size-delta`, `dep-introduction`, `obfuscation`, `phantom-deps` |
+| `signal.analyzer` | string | One of `lifecycle-scripts`, `binding-gyp`, `agent-hooks`, `ide-tasks`, `size-delta`, `dep-introduction`, `obfuscation`, `phantom-deps`, `native-binary` |
 | `signal.code` | string | Stable rule id, e.g. `LW001-LIFECYCLE`; a `D` suffix on the number (`LW001D-…`) marks delta codes |
 | `signal.kind` | `"absolute" \| "delta"` | Surface exists vs surface *newly appeared* this version |
 | `signal.package` | `{ name, version }` | The package the signal is about |

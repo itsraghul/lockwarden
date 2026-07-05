@@ -1,6 +1,6 @@
 {
   "note": "PROVISIONAL — gated by separation-report.md. Not final until the full top-500 corpus run.",
-  "generatedAt": "2026-07-04",
+  "generatedAt": "2026-07-05",
   "layer1": {
     "lifecycle-scripts": {
       "absolute": "med",
@@ -33,6 +33,10 @@
     "phantom-deps": {
       "absolute": "med",
       "delta": "none"
+    },
+    "native-binary": {
+      "absolute": "low",
+      "delta": "critical"
     }
   },
   "obfuscationCutoffs": {
@@ -51,19 +55,19 @@
   "measured": {
     "benignPackages": 60,
     "benignDeltaPairs": 60,
-    "maliciousFixtures": 16,
+    "maliciousFixtures": 20,
     "benignHighOrWorseAbsoluteRatePct": 0,
     "benignDeltaCriticalPackages": 0,
     "perAnalyzer": {
       "lifecycle-scripts": {
         "benignAbsHits": 5,
         "benignDeltaHits": 0,
-        "malDeltaHits": 5
+        "malDeltaHits": 7
       },
       "binding-gyp": {
         "benignAbsHits": 0,
         "benignDeltaHits": 0,
-        "malDeltaHits": 2
+        "malDeltaHits": 4
       },
       "agent-hooks": {
         "benignAbsHits": 0,
@@ -93,7 +97,12 @@
       "phantom-deps": {
         "benignAbsHits": 2,
         "benignDeltaHits": 0,
-        "malDeltaHits": 2
+        "malDeltaHits": 4
+      },
+      "native-binary": {
+        "benignAbsHits": 0,
+        "benignDeltaHits": 0,
+        "malDeltaHits": 4
       }
     }
   },

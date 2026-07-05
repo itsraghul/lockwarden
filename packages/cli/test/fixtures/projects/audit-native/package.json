@@ -1,0 +1,7 @@
+{
+  "name": "audit-native",
+  "version": "1.0.0",
+  "dependencies": {
+    "with-native": "^1.0.0"
+  }
+}

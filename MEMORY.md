@@ -54,6 +54,25 @@
   file is the ONLY legitimate source for scoring/weights.ts.
 - Weights stay provisional until the benign set grows to the full top-500.
 
+## native-binary analyzer decisions (2026-07-05)
+
+- **LW009 weights: absolute Low / delta Critical**, corpus-gated 2026-07-05
+  (60 benign + 20 synthetic, gate PASS, 0/60 benign absolute AND delta noise —
+  no cached benign ships a `.node` in either version; expect the absolute rate
+  to jump when the corpus grows to top-500 with sharp/esbuild platform pkgs,
+  which is fine: only delta gates).
+- **Magic-byte sniffing of `.node` entries deliberately deferred** — v1 is
+  listing+manifest only (zero file reads, binding-gyp cost profile). Sniffing
+  would force decoding potentially multi-MB tar entries in `--deep` and
+  synthetic fixtures would need fake ELF headers; revisit only if calibration
+  shows text files masquerading as `.node` matter.
+- Fetcher-token overlap is accepted: `install: prebuild-install || node-gyp
+  rebuild` trips LW001 + LW002 + LW009 — all true facts, corroborating (same
+  philosophy as phantom-dep + dropper co-firing).
+- Self-audit impact on the monorepo: +3 Low (fsevents/rollup/sharp platform
+  binaries on darwin; linux variants on CI), grade B each — `--ci --threshold
+  high` stays exit 0.
+
 ## Repo protection (2026-07-04)
 
 - `main` is protected by ruleset `protect-main` (id 18502842): PR required
