@@ -297,3 +297,59 @@ exports[`audit — baseline suppression > --sarif emits suppressed results with 
   "version": "2.1.0",
 }
 `;
+
+exports[`audit — native-binary (LW009) > --json carries the LW009 signal shape (snapshot) 1`] = `
+{
+  "command": "audit",
+  "lockfile": {
+    "path": "<fixture>/package-lock.json",
+    "type": "npm",
+  },
+  "mode": "absolute",
+  "packages": [
+    {
+      "findings": [
+        {
+          "layer": 1,
+          "severity": "low",
+          "signal": {
+            "analyzer": "native-binary",
+            "code": "LW009-NATIVE-BINARY",
+            "evidence": {
+              "detail": "prebuilt native binary surface: 1 prebuilt .node binary shipped (prebuilds/linux-x64/node.napi.node)",
+              "file": "prebuilds/linux-x64/node.napi.node",
+            },
+            "kind": "absolute",
+            "metrics": {
+              "fetcherDepCount": 0,
+              "nodeFileCount": 1,
+              "scriptFetcher": 0,
+            },
+            "package": {
+              "name": "with-native",
+              "version": "1.0.0",
+            },
+          },
+        },
+      ],
+      "grade": "B",
+      "key": "with-native@1.0.0",
+      "name": "with-native",
+      "version": "1.0.0",
+    },
+  ],
+  "rollup": {
+    "counts": {
+      "critical": 0,
+      "high": 0,
+      "low": 1,
+      "med": 0,
+      "none": 0,
+    },
+    "grade": "B",
+    "packagesAnalyzed": 1,
+    "packagesFlagged": 1,
+  },
+  "warnings": [],
+}
+`;

@@ -221,6 +221,37 @@ describe('audit — baseline suppression', () => {
   });
 });
 
+describe('audit — native-binary (LW009)', () => {
+  const cwd = join(PROJECTS, 'audit-native');
+
+  it('flags a shipped .node binary as Low absolute surface (grade B)', async () => {
+    const r = await run(['audit'], cwd);
+    expect(r.code).toBe(0); // low < default high threshold
+    expect(r.stdout).toContain('grade B');
+    expect(r.stdout).toContain('with-native@1.0.0');
+    expect(r.stdout).toContain('LW009-NATIVE-BINARY');
+    expect(r.stdout).toContain('prebuilds/linux-x64/node.napi.node');
+  });
+
+  it('exit-code matrix: clean at high, findings at low', async () => {
+    expect((await run(['--threshold', 'high', 'audit'], cwd)).code).toBe(0);
+    expect((await run(['--threshold', 'low', 'audit'], cwd)).code).toBe(1);
+  });
+
+  it('--json carries the LW009 signal shape (snapshot)', async () => {
+    const r = await run(['--json', 'audit'], cwd);
+    expect(r.code).toBe(0);
+    const parsed = JSON.parse(r.stdout);
+    const finding = parsed.packages[0].findings[0];
+    expect(finding.signal.analyzer).toBe('native-binary');
+    expect(finding.signal.code).toBe('LW009-NATIVE-BINARY');
+    expect(finding.signal.metrics.nodeFileCount).toBe(1);
+    expect(finding.severity).toBe('low');
+    const normalized = JSON.parse(r.stdout.replaceAll(cwd, '<fixture>'));
+    expect(normalized).toMatchSnapshot();
+  });
+});
+
 describe('audit — layer 2 known-bad overlay', () => {
   it('flags plain-crypto-js@1.0.0 critical from the vendored OSV seed, node_modules absent', async () => {
     const r = await run(['audit'], join(PROJECTS, 'audit-layer2'));

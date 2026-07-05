@@ -1,8 +1,9 @@
 /**
  * ┌─────────────────────────────────────────────────────────────────────────┐
  * │ GENERATED FROM THE CORPUS RUN — do not hand-edit.                       │
- * │ Source: corpus/report/weights.json @ commit 25ffb31 (2026-07-03,        │
- * │ 60 benign + 16 synthetic malicious, separation gate PASS).              │
+ * │ Source: corpus/report/weights.json @ corpus run 2026-07-05              │
+ * │ (60 benign + 20 synthetic malicious, separation gate PASS;              │
+ * │ native-binary added with 0/60 benign absolute + delta noise).           │
  * │ Weights stay PROVISIONAL until the benign set reaches the full top-500. │
  * │ To change anything here: change the analyzers or corpus, re-run         │
  * │ `pnpm corpus:run`, and transcribe the new weights.json.                 │
@@ -29,6 +30,7 @@ export const WEIGHTS: Record<AnalyzerId, { absolute: Severity; delta: Severity }
   'dep-introduction': { absolute: 'none', delta: 'critical' },
   obfuscation: { absolute: 'med', delta: 'high' },
   'phantom-deps': { absolute: 'med', delta: 'none' },
+  'native-binary': { absolute: 'low', delta: 'critical' },
 };
 
 export type Grade = 'A' | 'B' | 'C' | 'D' | 'F';

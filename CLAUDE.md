@@ -45,7 +45,7 @@ packages/
     src/
       commands/     # audit, check, drift, scan, secrets
       analyzers/    # lifecycle-scripts, binding-gyp, agent-hooks, ide-tasks,
-                    # size-delta, obfuscation, phantom-deps
+                    # size-delta, obfuscation, phantom-deps, native-binary
       lockfile/     # npm/yarn/pnpm parsers -> unified resolution model
       scoring/      # layer1 + layer2, grades A-F, SARIF 2.1.0 mapper
       data/         # vendored OSV snapshot + incident IOC bundles (JSON)
@@ -59,7 +59,7 @@ corpus/             # calibration harness: NOT shipped, gates all analyzer weigh
 ## Scoring model (summary — full table in spec §3)
 
 Layer 1 per-package signals, each with (absolute, delta) weights:
-lifecycle script (Low-Med, **Critical**) · binding.gyp (Low, **Critical**) · AI-agent hook/MCP manifest (Med, **Critical**) · IDE task file (Med, **High**) · main-file size >5x vs prev version (—, **High**) · new transitive dep in a patch release (—, **High**) · obfuscation markers in install-path files (Med, **High**) · phantom dependency (Med, —).
+lifecycle script (Low-Med, **Critical**) · binding.gyp (Low, **Critical**) · AI-agent hook/MCP manifest (Med, **Critical**) · IDE task file (Med, **High**) · main-file size >5x vs prev version (—, **High**) · new transitive dep in a patch release (—, **High**) · obfuscation markers in install-path files (Med, **High**) · phantom dependency (Med, —) · prebuilt native binary `.node`/fetcher (Low, **Critical**).
 
 Grades A–F per package; project rollup = worst grade + counts. SARIF: Critical→error, High→warning, Med→note, Low→suppressed.
 

@@ -14,6 +14,8 @@ describe('severityFor', () => {
     expect(severityFor(sig('ide-tasks', 'delta'))).toBe('high');
     expect(severityFor(sig('dep-introduction', 'delta'))).toBe('critical');
     expect(severityFor(sig('obfuscation', 'delta'))).toBe('high');
+    expect(severityFor(sig('native-binary', 'absolute'))).toBe('low');
+    expect(severityFor(sig('native-binary', 'delta'))).toBe('critical');
   });
 
   it("returns 'none' where the mode carries no weight", () => {

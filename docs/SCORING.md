@@ -24,6 +24,7 @@ weights always apply.
 | New transitive dep in a patch release | — | **Critical** |
 | Obfuscation markers in install-path files | Med | **High** |
 | Phantom dependency (declared, never imported) | Med | — |
+| Prebuilt native binary (`.node` file / prebuild fetcher) | Low | **Critical** |
 
 A few delta shapes are elevated to Critical when a compound pattern matches a
 validated attack shape (e.g. size-inflation *and* new obfuscation in the same

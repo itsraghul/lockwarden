@@ -17,7 +17,8 @@ export type AnalyzerId =
   | 'size-delta'
   | 'dep-introduction'
   | 'obfuscation'
-  | 'phantom-deps';
+  | 'phantom-deps'
+  | 'native-binary';
 
 export interface FileEntry {
   /** posix path relative to the package root ("package/" prefix stripped) */

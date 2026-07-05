@@ -31,8 +31,9 @@ Options:
 
 `audit` enumerates every execution vector in the resolved tree — npm lifecycle scripts,
 `binding.gyp` / node-gyp build hooks, AI-agent hooks and MCP manifests, IDE task files,
-phantom dependencies, obfuscation markers, and file-size anomalies — and grades each
-package A–F. See [Scoring](/scoring/) for the full signal table.
+prebuilt `.node` binaries and their fetcher toolchains, phantom dependencies, obfuscation
+markers, and file-size anomalies — and grades each package A–F. See
+[Scoring](/scoring/) for the full signal table.
 
 ## Flags
 

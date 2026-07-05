@@ -17,7 +17,27 @@ findings so `--threshold med`/`low` fails only on NEW execution surface.
 - Docs: site audit page (new Baseline section + real captured output),
   json-output reference, both READMEs.
 
-**Pending:** merge PR → v0.4.0 release; native-binary analyzer (LW009) next.
+**Pending:** merge PR → v0.4.0 release.
+
+## 2026-07-05 — native-binary analyzer LW009 (merged, in v0.4)
+
+Ninth analyzer, closing the largest uncovered execution vector: prebuilt
+`.node` binaries load native code at require-time with no `binding.gyp` and
+possibly no lifecycle script — invisible to LW001/LW002 until now.
+
+- Corpus-first per build order: born in `corpus/src/analyzers/`, calibrated
+  (2 new mutations, 4 specs → 20 fixtures, gate PASS with 0/60 benign noise),
+  promoted verbatim, weights transcribed (absolute Low / delta Critical).
+- Detects: shipped `.node` files (listing scan) + fetcher toolchains
+  (prebuild-install, node-pre-gyp, node-gyp-build, prebuildify) in runtime
+  deps/scripts. Zero file reads; magic-byte sniff deferred (see MEMORY.md).
+- Tests 270 → 273 on this branch; audit-native fixture project; committed
+  native-binary tarball triple; existing snapshots byte-identical.
+- Self-audit: +3 Low (platform binaries), still exit 0 at `--threshold high`.
+- Docs: scoring tables (site + docs/SCORING.md), audit page, json-output
+  analyzer enum, READMEs, CLAUDE.md summary.
+
+**Pending:** merged to main; ships in v0.4.0 with the audit-baseline PR.
 
 ## 2026-07-05 — docs site overhaul (12 → 21 pages, PR pending)
 

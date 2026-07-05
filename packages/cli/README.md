@@ -151,7 +151,8 @@ jobs:
 ## How scoring works
 
 Structural **Layer 1** signals (lifecycle scripts, `binding.gyp`, agent hooks, IDE
-tasks, size deltas, obfuscation, phantom & patch-introduced deps) each carry an
+tasks, prebuilt `.node` binaries, size deltas, obfuscation, phantom & patch-introduced
+deps) each carry an
 *absolute* weight and a heavier *delta* weight for surface that newly appeared. A
 **Layer 2** overlay matches resolved versions against a vendored OSV snapshot and
 incident bundles — any hit is Critical. Weights are calibrated against a corpus of
