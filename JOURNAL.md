@@ -1,5 +1,24 @@
 # JOURNAL.md — build progression
 
+## 2026-07-05 — public-repo docs refactor
+
+Made the repo docs public-appropriate now that lockwarden.dev is live.
+
+- Removed the two internal planning docs (`docs/lockwarden-v1-spec.md`,
+  `docs/lockwarden-use-case-and-learnings.md`) — they held competitive
+  positioning, distribution thesis, kill criteria, and naming/trademark
+  reasoning. Preserved privately at `~/.claude/plans/lockwarden-internal-strategy.md`
+  (git history still contains the originals — not a security scrub).
+- New public docs: `docs/{ARCHITECTURE,THREAT-MODEL,SCORING,CONTRIBUTING}.md`
+  — contributor- and user-facing, sanitized of business strategy.
+- Rewrote both READMEs as proper open-source library docs: badges, quick start,
+  full per-command reference, Action snippet, scoring/trust-model summaries,
+  contributing, repo layout. The CLI README (npm page) is self-contained.
+- Repointed CLAUDE.md and the 3 incident-bundle `references` at the new docs /
+  site; package `homepage` → lockwarden.dev.
+
+270 tests still green; changeset staged (patch — bundled data + homepage change).
+
 ## 2026-07-04 — v1 command surface complete + site (Phases 6–8, PR pending)
 
 **New commands (v0.3 changeset staged):**
