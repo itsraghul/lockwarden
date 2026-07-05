@@ -21,16 +21,29 @@ export default defineConfig({
       editLink: {
         baseUrl: 'https://github.com/itsraghul/lockwarden/edit/main/site/',
       },
+      lastUpdated: true,
       customCss: ['./src/styles/custom.css'],
       plugins: [starlightLinksValidator()],
       sidebar: [
         {
           label: 'Start Here',
-          items: [{ label: 'Getting started', slug: 'getting-started' }],
+          items: [
+            { label: 'Getting started', slug: 'getting-started' },
+            { label: 'CI quickstart', slug: 'quickstart-ci' },
+          ],
+        },
+        {
+          label: 'Guides',
+          items: [
+            { label: 'CI recipes', slug: 'guides/ci-recipes' },
+            { label: 'Incident response', slug: 'guides/incident-response' },
+            { label: 'Dependency review', slug: 'guides/dependency-review' },
+          ],
         },
         {
           label: 'Commands',
           items: [
+            { label: 'Overview', slug: 'commands' },
             { label: 'check', slug: 'commands/check' },
             { label: 'audit', slug: 'commands/audit' },
             { label: 'drift', slug: 'commands/drift' },
@@ -45,9 +58,19 @@ export default defineConfig({
         {
           label: 'Reference',
           items: [
-            { label: 'Incident bundles', slug: 'incidents' },
-            { label: 'Trust model', slug: 'trust-model' },
+            { label: 'JSON output', slug: 'reference/json-output' },
+            { label: 'Exit codes', slug: 'reference/exit-codes' },
             { label: 'Scoring', slug: 'scoring' },
+            { label: 'Trust model', slug: 'trust-model' },
+            { label: 'Incident bundles', slug: 'incidents' },
+          ],
+        },
+        {
+          label: 'Project',
+          items: [
+            { label: 'Comparison', slug: 'project/comparison' },
+            { label: 'Architecture decisions', slug: 'project/architecture-decisions' },
+            { label: 'Contributing', slug: 'project/contributing' },
           ],
         },
       ],

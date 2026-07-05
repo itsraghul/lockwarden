@@ -1,0 +1,206 @@
+---
+title: Getting started
+description: Install options, first-run walkthroughs of the three flows with real output, the exit-code API, and how to read what lockwarden tells you.
+---
+
+import { Tabs, TabItem } from '@astrojs/starlight/components';
+
+lockwarden is a local-first CLI that audits what your npm dependency tree can **execute** —
+lifecycle install scripts, native build hooks (`binding.gyp`), AI-agent hooks, IDE task
+files — and answers *"am I hit?"* during supply-chain incidents.
+
+It works in any project with a lockfile (`package-lock.json`, `yarn.lock`, or
+`pnpm-lock.yaml`). The lockfile is the source of truth — lockwarden never resolves from
+`package.json` alone, because transitive resolutions are where real attacks live.
+
+## Install
+
+There is nothing to sign up for and, if you use `npx`, nothing to install:
+
+```bash
+npx lockwarden --help
+```
+
+`npx` also has an incident-day advantage: it runs the **latest published version**, which
+is how new [incident bundles](/incidents/) reach you — the npm release cadence is the
+data pipeline.
+
+For a permanent install:
+
+<Tabs syncKey="pkg">
+  <TabItem label="npm">
+    ```bash
+    npm install -g lockwarden
+    ```
+  </TabItem>
+  <TabItem label="pnpm">
+    ```bash
+    pnpm add -g lockwarden
+    ```
+  </TabItem>
+  <TabItem label="yarn">
+    ```bash
+    yarn global add lockwarden
+    ```
+  </TabItem>
+</Tabs>
+
+In CI, prefer an **exact pin** so runs are reproducible — and bump it regularly, since
+vendored advisory data updates with each release:
+
+```bash
+npx --yes lockwarden@0.3.1 audit --ci
+```
+
+Requires Node.js **20.12+**. lockwarden itself has 3 runtime dependencies with zero
+transitive dependencies — [its own tree is part of the trust model](/trust-model/#our-own-dependency-tree-is-part-of-the-model).
+
+## The three flows
+
+### 1. Incident triage — "am I hit?"
+
+A compromised package is in the news. Ask your lockfile directly:
+
+```bash
+npx lockwarden check node-ipc@9.1.6
+npx lockwarden check --incident node-ipc-may26   # vendored IOC bundle
+npx lockwarden check axios --history              # was I *ever* exposed?
+```
+
+Real output against a hit tree:
+
+```
+lockfile: package-lock.json (npm)
+  HIT  evil-pkg@1.2.3
+       project → app-lib@1.0.0 → evil-pkg@1.2.3
+       project → other-lib@2.0.0 → nested-lib@3.0.1 → evil-pkg@1.2.3
+```
+
+Exit code `1` — and each `HIT` line is followed by **every transitive path** by which the
+package enters your resolved tree, so you know exactly which direct dependency to pin or
+remove. A clean result looks like this and exits `0`:
+
+```
+lockfile: package-lock.json (npm)
+  clean  node-ipc@9.1.6 — not in the resolved tree
+```
+
+Follow the full [incident-response runbook](/guides/incident-response/), or see the
+[`check` reference](/commands/check/).
+
+### 2. PR gate — "what does this bump introduce?"
+
+Before merging a Dependabot/Renovate PR:
+
+```bash
+npx lockwarden audit --diff main   # delta-score only the packages that changed
+npx lockwarden drift --base main   # lockfile tampering check
+```
+
+Real `audit --diff` output for a patch bump that introduced a new install script and a
+new transitive dependency:
+
+```
+grade F — 2 packages flagged of 2 analyzed
+critical 2 · med 2
+lockfile: package-lock.json (npm) — mode: diff
+
+  dep-a@1.0.1 — grade F
+    [critical] LW001D-LIFECYCLE-INTRODUCED package.json — lifecycle script "postinstall" is NEW in 1.0.1 (absent in 1.0.0)
+    [med] LW001-LIFECYCLE package.json — lifecycle script "postinstall" runs automatically on install
+    [med] LW008-PHANTOM package.json — declared dependency "dep-b" (^1.0.0) is never imported in 2 JS/TS files (plain-crypto-js pattern)
+
+  dep-b@1.0.0 — grade F
+    [critical] LW006D-PATCH-DEP-INTRODUCED — new transitive dependency dep-b@1.0.0 entered the tree alongside patch bump(s): dep-a 1.0.0 → 1.0.1
+```
+
+Note the distinction that drives the whole tool: the *same* postinstall script is `med`
+for merely existing (`LW001`) but **Critical** for being newly introduced in this version
+(`LW001D`). [Why delta over absolute →](/scoring/#layer-1--execution-surface-signals)
+
+Get this on every PR with the two-line [GitHub Action](/github-action/) or a
+[CI recipe](/guides/ci-recipes/) for your platform. Full flow:
+[dependency review guide](/guides/dependency-review/).
+
+### 3. Artifact verification — "what's actually in the thing I ship?"
+
+Registry-level scanning never sees `node_modules` pre-baked inside a tarball or Docker
+layer:
+
+```bash
+npx lockwarden scan ./release.tgz
+npx lockwarden scan --image myapp:latest
+```
+
+Real output against a tarball with a tampered vendored dependency:
+
+```
+grade C — 1 package flagged of 2 analyzed
+med 2
+artifact: app-baked-postinstall.tgz (tgz) — 2 embedded package roots
+
+  evil-thing@1.0.1 (package/node_modules/evil-thing) — grade C
+    [med] LW001-LIFECYCLE package.json — lifecycle script "postinstall" runs automatically on install
+    [med] LW007-OBFUSCATION install.js — obfuscation markers in install-path file: hex-array density 111.36/KB
+```
+
+See the [`scan` reference](/commands/scan/).
+
+## Reading the output
+
+Every scoring command reports the same way:
+
+- **A rollup line first** — worst grade in the tree plus severity counts
+  (`grade F — 2 packages flagged of 2 analyzed`). Grades run
+  [A–F per package](/scoring/#grades-af).
+- **One block per flagged package**, worst first. Each finding line is
+  `[severity] CODE file — explanation`. Codes starting `LW00x` are structural
+  Layer-1 signals; a trailing `D` (e.g. `LW001D`) marks a **delta** finding — the surface
+  is *new* in this version. Codes starting `LW2-` are
+  [Layer-2 known-bad matches](/scoring/#layer-2--known-bad-overlay) and are always
+  Critical.
+- **The exit code carries the verdict** — output is for humans, exit codes are for
+  machines.
+
+## Exit codes are the API
+
+Every command is CI-composable. There are exactly three outcomes:
+
+| Exit code | Meaning |
+| --- | --- |
+| `0` | Clean — no findings at or above `--threshold` |
+| `1` | Findings at or above `--threshold` (default: `high`) |
+| `2` | Execution error — bad arguments, unparseable lockfile, or a network call attempted under `--offline` |
+
+See the [exit-code reference](/reference/exit-codes/) for the per-command matrix and
+shell/CI snippets.
+
+## Global flags
+
+These apply to every command:
+
+| Flag | Type | Default | Effect |
+| --- | --- | --- | --- |
+| `--json` | boolean | `false` | Machine-readable JSON output ([schemas](/reference/json-output/)) |
+| `--sarif` | boolean | `false` | SARIF 2.1.0 output (GitHub Security tab) |
+| `--ci` | boolean | `false` | No colour/spinner, exit codes only |
+| `--dir <path>` | string, repeatable | current dir | Monorepo package root(s) |
+| `--threshold <grade>` | string | `high` | Minimum severity that triggers exit `1` — a severity name (`low`/`med`/`medium`/`high`/`critical`) or a grade letter (`B`/`C`/`D`/`F`) |
+| `--offline` | boolean | `false` | Hard-fail any network call (exit `2`) |
+
+`--json` and `--sarif` outputs are stable and snapshot-tested — safe to build tooling on.
+
+## Environment variables
+
+| Variable | Effect |
+| --- | --- |
+| `LOCKWARDEN_INCIDENT_DIR` | Directory of extra [incident bundle](/incidents/#staging-your-own-bundles-lockwarden_incident_dir) JSON files |
+| `LOCKWARDEN_CACHE_DIR` | Override the tarball cache location (default `~/.lockwarden/cache`) |
+| `LOCKWARDEN_REGISTRY` | Registry base URL for tarball fetches (default `https://registry.npmjs.org`) — for self-hosted registries |
+
+## Where to next
+
+- [CI quickstart](/quickstart-ci/) — a working PR gate in under five minutes.
+- [Trust model](/trust-model/) — why local-first is the point, and what the *only* network calls are.
+- [Scoring](/scoring/) — the Layer-1 signal table, grades A–F, and the known-bad overlay.
+- [Commands overview](/commands/) — the full flag reference for each command.

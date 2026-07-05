@@ -1,5 +1,28 @@
 # JOURNAL.md — build progression
 
+## 2026-07-05 — docs site overhaul (12 → 21 pages, PR pending)
+
+lockwarden.dev grew from a skeleton into full open-source docs (~3,400 lines):
+
+- **Guides**: CI recipes (GitHub Actions/GitLab/CircleCI/Jenkins/generic, with
+  line-by-line explanations, cache + --offline patterns), incident-response
+  runbook, dependency-review (Renovate/Dependabot habit)
+- **Commands**: all 5 expanded with real captured output (fixtures + scratch git
+  repos + a local HTTP registry for a genuine --diff delta run), full flag
+  tables, annotated --json shapes, per-command exit codes
+- **Reference**: json-output (complete machine-readable schema + jq recipes),
+  exit-codes, expanded scoring/trust-model/incidents
+- **Project**: comparison page (Socket/Snyk/StepSecurity/npm audit — positioning
+  discipline enforced: states plainly Socket's server-side analysis is deeper;
+  differentiates on trust model/vectors/artifacts/triage; "when they're the
+  better choice" section) + 11 ADRs in architecture-decisions
+- **AI consumability**: llms.txt (curated index) + llms-full.txt GENERATED at
+  build from all docs (can't go stale)
+- Fixed en route: action.yml CLI pin bumped 0.2.0 → 0.3.1 (release workflow does
+  NOT auto-bump it — manual step per release until automated)
+- Facts verified against shipped code; weight-table discrepancies resolved in
+  favor of weights.ts (CLAUDE.md summary table is approximate)
+
 ## 2026-07-05 — public-repo docs refactor
 
 Made the repo docs public-appropriate now that lockwarden.dev is live.

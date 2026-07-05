@@ -1,0 +1,44 @@
+# lockwarden
+
+> lockwarden is a free, open-source, local-first CLI that audits what an npm dependency tree can execute — lifecycle install scripts, native build hooks (binding.gyp/node-gyp), AI-agent hooks and MCP manifests, IDE task files — and answers "am I hit?" during supply-chain incidents. It resolves from the lockfile (package-lock.json / yarn.lock / pnpm-lock.yaml), never package.json alone; scores what a version bump *introduced* (delta) above what merely exists; and runs with zero telemetry, zero accounts, and no backend. Exit codes are the API: 0 clean, 1 findings at/above threshold, 2 execution error. npm package: `lockwarden` (npx lockwarden …). Source: https://github.com/itsraghul/lockwarden
+
+Every docs page below is also available concatenated as plain markdown at
+https://lockwarden.dev/llms-full.txt
+
+## Start here
+
+- [Getting started](https://lockwarden.dev/getting-started/): install options (npx/global/exact pin), the three flows with real output, reading the output, global flags, environment variables
+- [CI quickstart](https://lockwarden.dev/quickstart-ci/): minimal copy-paste to a working PR gate — GitHub Action or one line of npx for any CI
+
+## Guides
+
+- [CI recipes](https://lockwarden.dev/guides/ci-recipes/): complete pipelines for GitHub Actions (Action and raw npx), GitLab CI, CircleCI, Jenkins, generic shell; SARIF upload, thresholds per environment, tarball caching, --offline/airgapped warm-cache pattern, lockfile-paths triggers, monorepo --dir usage
+- [Incident response](https://lockwarden.dev/guides/incident-response/): the runbook — one-line triage with npx, reading path traces, --history exposure windows, --incident bundles and how they arrive, exit codes for incident bridges, post-incident pin/drift/scan
+- [Dependency review](https://lockwarden.dev/guides/dependency-review/): reviewing Renovate/Dependabot PRs with audit --diff, interpreting delta findings, the ignore-scripts allowlist workflow, drift --base before merging
+
+## Commands
+
+- [Commands overview](https://lockwarden.dev/commands/): the five commands, network behavior, which command when
+- [check](https://lockwarden.dev/commands/check/): incident triage — every transitive path a package enters by; --incident bundles; --history exposure windows from git
+- [audit](https://lockwarden.dev/commands/audit/): execution-surface audit — absolute scan, --diff delta scoring vs a git ref, --deep full-tree deltas
+- [drift](https://lockwarden.dev/commands/drift/): lockfile tampering vs a base ref — integrity swaps, resolved-URL moves, unexplained versions, patch-introduced packages
+- [scan](https://lockwarden.dev/commands/scan/): artifact scanning — tarball, zip, directory, docker-save layers; file-level incident IOCs
+- [secrets](https://lockwarden.dev/commands/secrets/): minimal hardcoded-credential scan (15 rules, always masked)
+
+## CI & automation
+
+- [GitHub Action](https://lockwarden.dev/github-action/): all inputs, permissions, version pinning incl. pin-by-SHA, SARIF/Security-tab setup, troubleshooting
+
+## Reference
+
+- [JSON output](https://lockwarden.dev/reference/json-output/): full --json schema per command with field tables, SARIF mapping, stability guarantee, jq recipes
+- [Exit codes](https://lockwarden.dev/reference/exit-codes/): the 0/1/2 contract, per-command matrix, shell/CI snippets
+- [Scoring](https://lockwarden.dev/scoring/): Layer-1 signal/weight table with rule codes, grades A–F, compound elevations, Layer-2 known-bad overlay, corpus calibration
+- [Trust model](https://lockwarden.dev/trust-model/): the single network chokepoint, --offline guarantee, vendored-data pipeline, 3-dependency budget, provenance stance
+- [Incident bundles](https://lockwarden.dev/incidents/): bundle JSON schema field table, shipped bundles, LOCKWARDEN_INCIDENT_DIR staging and validation walkthrough
+
+## Project
+
+- [Comparison](https://lockwarden.dev/project/comparison/): lockwarden vs Socket, Snyk, StepSecurity, npm audit — factual table plus when each hosted platform is the better choice
+- [Architecture decisions](https://lockwarden.dev/project/architecture-decisions/): 11 ADRs — delta scoring, lockfile as truth, vendored feeds, local-first, detection-not-enforcement, provenance stance, dependency budget, single-file bundle, corpus-gated weights, no pre-commit hooks, offline chokepoint
+- [Contributing](https://lockwarden.dev/project/contributing/): ground rules and links to repo contributor docs
