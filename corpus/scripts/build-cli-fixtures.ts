@@ -173,6 +173,24 @@ async function main(): Promise<void> {
     { path: 'index.js', data: `${INERT_MARKER}const ms = require('ms');\nmodule.exports = ms;\n` },
   ]);
 
+  // native-binary
+  const nativeBenign: TarWriteEntry[] = [
+    manifest({ name: 'native-mini', version: '1.0.0', main: 'index.js' }),
+    { path: 'index.js', data: `${INERT_MARKER}module.exports = 1;\n` },
+  ];
+  await emit('native-binary', 'benign.tgz', nativeBenign);
+  await emit('native-binary', 'previous.tgz', nativeBenign);
+  await emit('native-binary', 'malicious.tgz', [
+    manifest({
+      name: 'native-mini',
+      version: '1.0.1',
+      main: 'index.js',
+      dependencies: { 'prebuild-install': '^7.1.0' },
+    }),
+    { path: 'index.js', data: `${INERT_MARKER}module.exports = 1;\n` },
+    { path: 'build/Release/lw_inert.node', data: INERT_MARKER },
+  ]);
+
   // dep-introduction (tree-level): committed as a loadable placeholder set so
   // the fixture layout is uniform; the real calibration uses lockfile pairs.
   const depMini: TarWriteEntry[] = [
