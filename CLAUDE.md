@@ -6,7 +6,7 @@
 
 One-sentence differentiation vs Socket/Snyk/StepSecurity/npm-audit: **they ask "is this package known-bad?" — lockwarden asks "what can this tree execute, and what changed?"**
 
-Full context lives in `docs/lockwarden-v1-spec.md` (what to build) and `docs/lockwarden-use-case-and-learnings.md` (why it's shaped this way). Read the spec before implementing any command.
+Public technical docs live in `docs/` (`ARCHITECTURE.md`, `THREAT-MODEL.md`, `SCORING.md`, `CONTRIBUTING.md`) — read `ARCHITECTURE.md` before implementing any command. The original internal planning/strategy docs (competitive positioning, distribution thesis, kill criteria, naming record) were pulled out of the public repo on 05 Jul 2026 and preserved privately at `~/.claude/plans/lockwarden-internal-strategy.md`; consult it for the "why", not the public docs.
 
 ## Project memory & journal — read first, keep current
 

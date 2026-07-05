@@ -3,9 +3,7 @@
   "name": "node-ipc binding.gyp compromise (May 2026)",
   "date": "2026-05-12",
   "summary": "Malicious payload delivered via a binding.gyp node-gyp hook that executes at install time even with lifecycle scripts disabled; CI credentials harvested. Published across multiple major version lines simultaneously to maximize semver-range blast radius.",
-  "references": [
-    "https://github.com/itsraghul/lockwarden/blob/main/docs/lockwarden-use-case-and-learnings.md"
-  ],
+  "references": ["https://lockwarden.dev/incidents/"],
   "packages": [
     {
       "name": "node-ipc",
