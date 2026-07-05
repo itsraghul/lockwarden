@@ -9,6 +9,10 @@ hero:
     - text: Get started
       link: /getting-started/
       icon: right-arrow
+    - text: CI quickstart
+      link: /quickstart-ci/
+      icon: rocket
+      variant: secondary
     - text: GitHub
       link: https://github.com/itsraghul/lockwarden
       icon: github
@@ -31,6 +35,9 @@ Answers come from your **resolved lockfile** — every transitive path by which 
 enters your tree, not just what `package.json` claims. Exit `0` clean, `1` hit, `2` error.
 Nothing is uploaded anywhere; there is nowhere to upload it to.
 
+New here? Start with the [incident-response runbook](/guides/incident-response/) or the
+[getting started guide](/getting-started/).
+
 ## A different question
 
 Everyone else asks *"is this package known-bad?"* — lockwarden asks
@@ -41,19 +48,19 @@ Everyone else asks *"is this package known-bad?"* — lockwarden asks
     Advisory databases lag attacks by design. lockwarden scores the execution surface a
     version bump *introduces* — a new install script, a new `binding.gyp`, a 25x file-size
     jump, a new transitive dep in a patch release. Legitimate native packages carry build
-    hooks forever; attacks introduce them. Delta scoring needs no feed to fire.
+    hooks forever; attacks introduce them. [Delta scoring](/scoring/) needs no feed to fire.
   </Card>
   <Card title="Nothing leaves your machine" icon="laptop">
     No account, no telemetry, no backend — ever. 2026 malware actively terminates CI
     security agents and blocks their telemetry domains; lockwarden has no endpoint to
     attack. Advisory data ships vendored inside the npm package, and <code>--offline</code>
-    hard-fails if any network call is even attempted.
+    hard-fails if any network call is even attempted. [The trust model →](/trust-model/)
   </Card>
   <Card title="The 2026 vectors" icon="warning">
     Beyond lifecycle scripts: <code>binding.gyp</code> / node-gyp hooks that run even with
     scripts disabled, AI-agent hooks and MCP manifests that fire on session start, IDE
     folder-open task files, and tampered dependencies pre-baked inside vendored
-    <code>node_modules</code> that no registry-level scanner ever sees.
+    <code>node_modules</code> that no registry-level scanner ever sees. [Scan artifacts →](/commands/scan/)
   </Card>
 </CardGrid>
 
@@ -67,4 +74,30 @@ Everyone else asks *"is this package known-bad?"* — lockwarden asks
 ```
 
 Delta-scored review of every dependency bump, findings in the GitHub Security tab you
-already use. [Set up the Action →](/github-action/)
+already use. [Set up the Action →](/github-action/), or use the
+[copy-paste recipes](/guides/ci-recipes/) for GitLab, CircleCI, Jenkins, and any other CI.
+
+## Explore the docs
+
+<CardGrid>
+  <Card title="Commands" icon="seti:powershell">
+    The five commands — [check](/commands/check/), [audit](/commands/audit/),
+    [drift](/commands/drift/), [scan](/commands/scan/), [secrets](/commands/secrets/) —
+    every flag, real output, exit codes. [Overview →](/commands/)
+  </Card>
+  <Card title="Guides" icon="open-book">
+    [CI recipes](/guides/ci-recipes/) for every platform, the
+    [incident-response runbook](/guides/incident-response/), and the
+    [daily dependency-review habit](/guides/dependency-review/).
+  </Card>
+  <Card title="Reference" icon="document">
+    [JSON output schemas](/reference/json-output/), the
+    [exit-code contract](/reference/exit-codes/), [scoring](/scoring/),
+    [trust model](/trust-model/), [incident bundles](/incidents/).
+  </Card>
+  <Card title="Project" icon="information">
+    [How lockwarden compares](/project/comparison/) to Socket, Snyk, StepSecurity and
+    npm audit — honestly. [Architecture decisions](/project/architecture-decisions/) and
+    [contributing](/project/contributing/).
+  </Card>
+</CardGrid>
