@@ -3,8 +3,8 @@
  * med→note; low is suppressed unless opts.verbose; 'none' never appears
  * (the engine already drops none-weighted signals).
  */
-import { createHash } from 'node:crypto';
-import type { AuditReport, Finding, PackageReport } from './types.ts';
+import { codeOf, sarifFingerprint } from './fingerprint.ts';
+import type { AuditReport, Finding, PackageReport, SuppressedFinding } from './types.ts';
 import type { Severity } from './weights.ts';
 
 const REPO_URL = 'https://github.com/itsraghul/lockwarden';
@@ -24,18 +24,16 @@ export interface SarifOptions {
   toolVersion?: string;
 }
 
-function codeOf(finding: Finding): string {
-  return finding.layer === 1 ? finding.signal.code : finding.code;
-}
-
 function messageOf(pkg: PackageReport, finding: Finding): string {
   const detail = finding.layer === 1 ? finding.signal.evidence.detail : finding.layer2.summary;
   return `${pkg.key}: ${detail}`;
 }
 
-/** Stable result identity across runs: sha256 of "code:name@version". */
-function fingerprintOf(pkg: PackageReport, code: string): string {
-  return createHash('sha256').update(`${code}:${pkg.key}`).digest('hex');
+/** Baseline-suppressed results carry the standard SARIF suppressions property. */
+function suppressionsOf(finding: Finding | SuppressedFinding): object[] | undefined {
+  if (!('suppression' in finding)) return undefined;
+  const reason = finding.suppression.reason;
+  return [{ kind: 'external', ...(reason !== undefined ? { justification: reason } : {}) }];
 }
 
 export function toSarif(report: AuditReport, opts: SarifOptions = {}): object {
@@ -44,7 +42,7 @@ export function toSarif(report: AuditReport, opts: SarifOptions = {}): object {
   const results: object[] = [];
 
   for (const pkg of report.packages) {
-    for (const finding of pkg.findings) {
+    for (const finding of [...pkg.findings, ...(pkg.suppressed ?? [])]) {
       if (finding.severity === 'low' && !opts.verbose) continue;
       const level = SARIF_LEVEL[finding.severity];
       if (level === undefined) continue; // 'none' never appears
@@ -57,6 +55,7 @@ export function toSarif(report: AuditReport, opts: SarifOptions = {}): object {
         rules.push({ id: code, helpUri: HELP_URI });
       }
 
+      const suppressions = suppressionsOf(finding);
       results.push({
         ruleId: code,
         ruleIndex,
@@ -71,7 +70,8 @@ export function toSarif(report: AuditReport, opts: SarifOptions = {}): object {
             logicalLocations: [{ fullyQualifiedName: pkg.key }],
           },
         ],
-        partialFingerprints: { 'lockwarden/v1': fingerprintOf(pkg, code) },
+        partialFingerprints: { 'lockwarden/v1': sarifFingerprint(code, pkg.key) },
+        ...(suppressions !== undefined ? { suppressions } : {}),
       });
     }
   }

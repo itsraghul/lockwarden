@@ -8,7 +8,7 @@ Execution-surface audit of the resolved dependency tree.
 ## Synopsis
 
 ```bash
-lockwarden audit [--diff <base-ref> | --deep] [--verbose]
+lockwarden audit [--diff <base-ref> | --deep] [--verbose] [--baseline <path> | --no-baseline] [--write-baseline]
 ```
 
 ```
@@ -22,6 +22,10 @@ Options:
   --deep             full-tree delta scan (fetches previous version of every dep
                      — slow) (default: false)
   --verbose          include Low findings in SARIF output (default: false)
+  --baseline <path>  baseline file (default: <dir>/.lockwarden-baseline.json)
+  --no-baseline      ignore any baseline file
+  --write-baseline   create/update the baseline from current findings (default:
+                     false)
   -h, --help         display help for command
 ```
 
@@ -37,6 +41,9 @@ package A–F. See [Scoring](/scoring/) for the full signal table.
 | `--diff <base-ref>` | string | — | Delta-score only packages whose resolved version changed vs a git ref |
 | `--deep` | boolean | `false` | Full-tree delta scan — fetches the previous version of *every* dependency (slow) |
 | `--verbose` | boolean | `false` | Include Low findings in SARIF output |
+| `--baseline <path>` | string | `<dir>/.lockwarden-baseline.json` | Baseline file location; an explicit path must exist (exit `2` otherwise) |
+| `--no-baseline` | boolean | `false` | Ignore any baseline file |
+| `--write-baseline` | boolean | `false` | Create/update the [baseline](#baseline) from current findings, then exit `0` |
 
 `--diff` and `--deep` are **mutually exclusive** (combining them exits `2`). All
 [global flags](/getting-started/#global-flags) apply. `audit` analyzes one project per
@@ -66,7 +73,73 @@ the signal every 2026 attack exhibited. These fetches are the
 Fetches the previous version of **every** dependency and delta-scores the whole tree.
 Explicitly slow; intended for periodic scheduled runs, not PRs.
 
-## Example 1 — absolute baseline
+## Baseline
+
+Real trees carry *accepted* execution surface — esbuild's install script, sharp's native
+binaries. Without a baseline, adopting `--threshold med` or `low` in CI means failing on
+findings you have already reviewed. A **baseline file** records those accepted findings so
+CI fails only on **new** ones — the [delta-over-absolute](/project/architecture-decisions/#1-delta-over-absolute-scoring)
+rule applied to adoption.
+
+```bash
+# Review current findings, then accept them:
+lockwarden audit --write-baseline
+
+# Commit the file; from now on only NEW findings fail the run:
+lockwarden audit --ci --threshold med
+```
+
+`--write-baseline` writes `.lockwarden-baseline.json` next to the lockfile (or to
+`--baseline <path>`):
+
+```json
+{
+  "version": 1,
+  "generatedAt": "2026-07-05",
+  "tool": "lockwarden@0.4.0",
+  "entries": [
+    {
+      "code": "LW002-BINDING-GYP",
+      "package": "with-gyp",
+      "version": "1.0.0",
+      "addedAt": "2026-07-05"
+    },
+    {
+      "code": "LW001-LIFECYCLE",
+      "package": "with-post",
+      "version": "1.0.0",
+      "addedAt": "2026-07-05"
+    }
+  ]
+}
+```
+
+Entries are cleartext and diff-reviewable. `code` + `package` are the match key; add a
+`"reason"` (shown as the SARIF suppression justification) and an optional `"expires"`
+ISO date (on/after it, the entry stops suppressing and a warning is printed). `version`
+and `addedAt` are audit trail only.
+
+**Matching is version-independent.** An accepted `LW001-LIFECYCLE` on `esbuild` stays
+accepted when esbuild bumps 0.21.5 → 0.21.6 — the surface that *persists* across versions
+is exactly what a baseline is for. What **changes** between versions is caught by the
+delta analyzers (`--diff`) and the Layer-2 known-bad overlay, which a baseline can never
+mute:
+
+- **Layer-2 findings** (known-bad packages) are never suppressible.
+- **Critical findings** are never suppressible.
+- **Delta findings on a grade-F package** are never suppressible (protects
+  corpus-elevated compound Criticals).
+
+`--write-baseline` skips these with a printed note; hand-edited entries matching them are
+ignored with a warning. Suppressed findings stay visible: dimmed `[suppressed]` lines in
+human output, a `suppressed` array per package in [`--json`](/reference/json-output/),
+and SARIF results carrying the standard `suppressions` property (GitHub code scanning
+shows them as suppressed instead of open).
+
+Re-running `--write-baseline` preserves the `addedAt`/`reason`/`expires` of surviving
+entries and prunes entries that no longer match anything.
+
+## Example 1 — absolute scan
 
 ```bash
 npx lockwarden audit
@@ -179,7 +252,12 @@ Stable, snapshot-tested shape (trimmed to one finding here):
 }
 ```
 
-Only flagged packages appear in `packages`. Full field tables:
+Only flagged packages appear in `packages`. When a [baseline](#baseline) is applied,
+three additive fields appear: a top-level `baseline` object
+(`{ path, entries, matched, expired }`), `rollup.suppressedCounts`, and a per-package
+`suppressed` array (each element is a finding plus a
+`suppression: { reason?, addedAt?, expires? }` object) — packages whose findings are all
+suppressed stay in `packages` with re-derived grades. Full field tables:
 [JSON output → audit](/reference/json-output/#lockwarden-audit---json).
 
 ## Exit codes
@@ -188,7 +266,7 @@ Only flagged packages appear in `packages`. Full field tables:
 | --- | --- |
 | `0` | No findings at or above `--threshold` (default: `high`) |
 | `1` | Findings at or above `--threshold` |
-| `2` | Execution error — unparseable lockfile, lockfile missing at the `--diff` ref, `--diff` combined with `--deep`, invalid `--threshold`, or a network call attempted under `--offline` |
+| `2` | Execution error — unparseable lockfile, lockfile missing at the `--diff` ref, `--diff` combined with `--deep`, invalid `--threshold`, a malformed or missing explicit `--baseline` file, `--write-baseline` combined with `--json`/`--sarif`/`--no-baseline`, or a network call attempted under `--offline` |
 
 ## Output modes
 

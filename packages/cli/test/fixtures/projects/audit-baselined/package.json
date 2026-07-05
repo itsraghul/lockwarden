@@ -1,0 +1,8 @@
+{
+  "name": "audit-baselined",
+  "version": "1.0.0",
+  "dependencies": {
+    "with-gyp": "^1.0.0",
+    "with-post": "^1.0.0"
+  }
+}

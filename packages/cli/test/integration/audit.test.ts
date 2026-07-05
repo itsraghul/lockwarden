@@ -136,6 +136,91 @@ describe('audit — absolute mode, flagged tree', () => {
   });
 });
 
+describe('audit — baseline suppression', () => {
+  const cwd = join(PROJECTS, 'audit-baselined');
+  const flaggedCwd = join(PROJECTS, 'audit-flagged');
+
+  it('auto-loads .lockwarden-baseline.json: suppressed findings stop failing the threshold', async () => {
+    // The fixture baseline suppresses the med LW001-LIFECYCLE on with-post;
+    // only the low LW002 stays active, so --threshold med is clean.
+    const r = await run(['--threshold', 'med', 'audit'], cwd);
+    expect(r.code).toBe(0);
+    expect(r.stdout).toContain('baseline: 1 finding(s) suppressed');
+    expect(r.stdout).toContain('1 expired');
+    expect(r.stdout).toContain('[suppressed] LW001-LIFECYCLE');
+  });
+
+  it('--no-baseline ignores the file and restores exit 1', async () => {
+    const r = await run(['--threshold', 'med', 'audit', '--no-baseline'], cwd);
+    expect(r.code).toBe(1);
+    expect(r.stdout).not.toContain('baseline:');
+  });
+
+  it('--json carries suppressed findings, suppressedCounts, and baseline info', async () => {
+    const r = await run(['--json', 'audit'], cwd);
+    expect(r.code).toBe(0);
+    const parsed = JSON.parse(r.stdout);
+    expect(parsed.baseline.matched).toBe(1);
+    expect(parsed.baseline.expired).toBe(1);
+    expect(parsed.rollup.suppressedCounts.med).toBe(1);
+    expect(parsed.rollup.packagesFlagged).toBe(1); // with-gyp only; with-post fully suppressed
+    expect(parsed.rollup.grade).toBe('B');
+    const withPost = parsed.packages.find((p: { name: string }) => p.name === 'with-post');
+    expect(withPost.grade).toBe('A');
+    expect(withPost.findings).toEqual([]);
+    expect(withPost.suppressed).toHaveLength(1);
+    const normalized = JSON.parse(r.stdout.replaceAll(cwd, '<fixture>'));
+    expect(normalized).toMatchSnapshot();
+  });
+
+  it('--sarif emits suppressed results with the suppressions property', async () => {
+    const r = await run(['--sarif', 'audit'], cwd);
+    expect(r.code).toBe(0);
+    const sarif = JSON.parse(r.stdout.replaceAll(cwd, '<fixture>'));
+    const suppressed = sarif.runs[0].results.find(
+      (res: { ruleId: string }) => res.ruleId === 'LW001-LIFECYCLE',
+    );
+    expect(suppressed.suppressions).toEqual([
+      { kind: 'external', justification: 'postinstall reviewed — writes a local marker file only' },
+    ]);
+    sarif.runs[0].tool.driver.version = '<version>';
+    expect(sarif).toMatchSnapshot();
+  });
+
+  it('an explicit --baseline path that does not exist is exit 2', async () => {
+    const r = await run(['audit', '--baseline', '/nonexistent/baseline.json'], flaggedCwd);
+    expect(r.code).toBe(2);
+    expect(r.stderr).toContain('not found');
+  });
+
+  it('--write-baseline round-trip: write, then consume for a clean low-threshold run', async () => {
+    const file = join(mkdtempSync(join(tmpdir(), 'lockwarden-baseline-')), 'baseline.json');
+    const w = await run(['audit', '--write-baseline', '--baseline', file], flaggedCwd);
+    expect(w.code).toBe(0);
+    expect(w.stdout).toContain('baseline written');
+    expect(w.stdout).toContain('(2 entries)');
+
+    const r = await run(['--threshold', 'low', 'audit', '--baseline', file], flaggedCwd);
+    expect(r.code).toBe(0);
+    expect(r.stdout).toContain('baseline: 2 finding(s) suppressed');
+
+    // Without the baseline the same run fails at --threshold low.
+    const bare = await run(['--threshold', 'low', 'audit'], flaggedCwd);
+    expect(bare.code).toBe(1);
+  });
+
+  it('--write-baseline conflicts with machine output and --no-baseline (exit 2)', async () => {
+    expect((await run(['--json', 'audit', '--write-baseline'], flaggedCwd)).code).toBe(2);
+    expect((await run(['--sarif', 'audit', '--write-baseline'], flaggedCwd)).code).toBe(2);
+    expect((await run(['audit', '--write-baseline', '--no-baseline'], flaggedCwd)).code).toBe(2);
+  });
+
+  it('runs under --offline (baseline is pure disk)', async () => {
+    const r = await run(['--offline', '--threshold', 'med', 'audit'], cwd);
+    expect(r.code).toBe(0);
+  });
+});
+
 describe('audit — layer 2 known-bad overlay', () => {
   it('flags plain-crypto-js@1.0.0 critical from the vendored OSV seed, node_modules absent', async () => {
     const r = await run(['audit'], join(PROJECTS, 'audit-layer2'));

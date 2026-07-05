@@ -54,6 +54,24 @@
   file is the ONLY legitimate source for scoring/weights.ts.
 - Weights stay provisional until the benign set grows to the full top-500.
 
+## Baseline suppression design (2026-07-05)
+
+- **First (and only) config-file surface**: `.lockwarden-baseline.json`, audit-only
+  for now. Deliberate precedent — hand-rolled validation, zero new deps, pure disk
+  (works under `--offline`). `scan` extension is a documented follow-up (it reuses
+  `AuditReport`, so the same `applyBaseline` slots in).
+- **Matching is version-independent** (`code` + package `name`, no version): accepted
+  absolute surface persists across benign bumps (the esbuild-lifecycle case); what
+  CHANGES between versions is the delta analyzers' + Layer-2's job, which a baseline
+  can never mute. SARIF's per-result fingerprint stays version-inclusive — different
+  purpose (GitHub result tracking), shared code in `scoring/fingerprint.ts`.
+- **Never suppressible**: Layer-2, critical severity, and delta findings on grade-F
+  packages. The F-guard exists because `elevateSeverity` can compound two Highs into
+  a Critical (node-ipc shape) — suppressing the Highs would silently dissolve it.
+  Consequence: suppression never lowers an F, and `regrade()` hard-codes that.
+- Do NOT commit a baseline at the repo root — the self-audit's clean-tree posture is
+  a marketing artifact (CLAUDE.md rule 8 spirit).
+
 ## Repo protection (2026-07-04)
 
 - `main` is protected by ruleset `protect-main` (id 18502842): PR required

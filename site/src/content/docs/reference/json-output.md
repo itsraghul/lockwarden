@@ -152,6 +152,60 @@ With `--history` the document instead carries a `history` object:
 | `rollup.counts` | object | Finding count per severity |
 | `warnings[]` | string[] | Non-fatal notes |
 
+### Baseline fields (additive, only when a baseline is applied)
+
+When a [baseline file](/commands/audit/#baseline) suppresses findings, three optional
+fields appear — absent otherwise, per the stability guarantee:
+
+```json
+{
+  "packages": [
+    {
+      "name": "with-post",
+      "version": "1.0.0",
+      "key": "with-post@1.0.0",
+      "grade": "A",
+      "findings": [],
+      "suppressed": [
+        {
+          "layer": 1,
+          "signal": { /* Finding.signal, unchanged */ },
+          "severity": "med",
+          "suppression": {
+            "reason": "postinstall reviewed — writes a local marker file only",
+            "addedAt": "2026-07-05"
+          }
+        }
+      ]
+    }
+  ],
+  "rollup": {
+    "suppressedCounts": { "none": 0, "low": 0, "med": 1, "high": 0, "critical": 0 }
+  },
+  "baseline": {
+    "path": "/work/app/.lockwarden-baseline.json",
+    "entries": 2,
+    "matched": 1,
+    "expired": 1
+  }
+}
+```
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `packages[].suppressed[]` | array? | Baseline-suppressed findings: a [Finding](#the-finding-object) plus a `suppression` object |
+| `packages[].suppressed[].suppression` | object | `reason?`, `addedAt?`, `expires?` copied from the matching baseline entry |
+| `packages[].grade` | Grade | Re-derived from **active** findings only (`F` never improves) |
+| `rollup.suppressedCounts` | object? | Suppressed-finding count per severity (active counts stay in `rollup.counts`) |
+| `baseline.path` | string | Baseline file that was applied |
+| `baseline.entries` | number | Total entries in the file |
+| `baseline.matched` | number | Findings suppressed this run |
+| `baseline.expired` | number | Entries ignored because their `expires` date passed |
+
+Exit codes and `--threshold` evaluate **active findings only** — that is the point of a
+baseline. Layer-2, critical, and grade-F delta findings are
+[never suppressible](/commands/audit/#baseline).
+
 ### The `Finding` object
 
 A finding is either **Layer 1** (structural signal + corpus-gated severity) or
@@ -302,6 +356,9 @@ for GitHub code scanning:
   artifact; `logicalLocations[].fullyQualifiedName` is the `name@version`.
 - `partialFingerprints["lockwarden/v1"]` is a stable hash so GitHub tracks a finding
   across runs instead of re-opening it each push.
+- [Baseline](/commands/audit/#baseline)-suppressed findings are still emitted, with a
+  `suppressions: [{ "kind": "external", "justification": "<reason>" }]` property — GitHub
+  code scanning shows them as suppressed instead of open.
 
 Upload with `github/codeql-action/upload-sarif` — wired automatically by the
 [GitHub Action](/github-action/). SARIF upload is GitHub-specific; on other platforms
