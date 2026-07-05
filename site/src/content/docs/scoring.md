@@ -26,6 +26,7 @@ dominate by design: legitimate native packages carry `binding.gyp` forever, but 
 | New transitive dep in a patch release (`dep-introduction`) | `LW006D` | — | **Critical** |
 | Obfuscation markers in install-path files (`obfuscation`) | `LW007`, `LW007D` | Med | **High** |
 | Phantom dependency — declared, never imported (`phantom-deps`) | `LW008` | Med | — |
+| Prebuilt native binary — `.node` file / prebuild fetcher (`native-binary`) | `LW009`, `LW009D` | Low | **Critical** |
 
 Delta weights apply only in [`--diff` / `--deep` modes](/commands/audit/#modes) (which
 fetch previous tarballs for comparison); absolute weights always apply, so a first-time
@@ -40,7 +41,13 @@ manifest filenames (`mcp.json`, `*.mcp.json`, `mcp-manifest*`), files declaring
 `.cursor/`, `.github/copilot`) *shipped inside a package*; ide-tasks flags
 `.vscode/tasks.json` (and settings) inside a package, with `runOn: folderOpen` treated
 specially; obfuscation measures hex-array density, eval chains, and packed lines in
-install-path files.
+install-path files; native-binary flags shipped `.node` files (native code that loads at
+*require*-time — no `binding.gyp`, possibly no lifecycle script) and prebuilt-binary
+fetcher toolchains (`prebuild-install`, `node-pre-gyp`, `node-gyp-build`, `prebuildify`)
+in runtime deps or scripts. Note the meta-package pattern: sharp/esbuild-style packages
+fan out to per-platform `optionalDependencies`, so the *platform* packages
+(`@img/sharp-linux-x64`, …) each carry the Low absolute finding while the meta package
+stays clean — expected, since the platform packages are what ship the binaries.
 
 ## Compound elevations
 
