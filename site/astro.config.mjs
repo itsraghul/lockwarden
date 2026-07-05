@@ -18,9 +18,6 @@ export default defineConfig({
           href: 'https://github.com/itsraghul/lockwarden',
         },
       ],
-      editLink: {
-        baseUrl: 'https://github.com/itsraghul/lockwarden/edit/main/site/',
-      },
       lastUpdated: true,
       customCss: ['./src/styles/custom.css'],
       plugins: [starlightLinksValidator()],
