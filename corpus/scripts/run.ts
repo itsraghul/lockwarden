@@ -46,6 +46,7 @@ const WEIGHTS = {
   'dep-introduction': { absolute: 'none', delta: 'high' },
   obfuscation: { absolute: 'med', delta: 'high' },
   'phantom-deps': { absolute: 'med', delta: 'none' },
+  'native-binary': { absolute: 'low', delta: 'critical' },
 } as const satisfies Record<string, { absolute: Severity; delta: Severity }>;
 
 function severityOf(signal: Signal): Severity {

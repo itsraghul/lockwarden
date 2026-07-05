@@ -96,6 +96,30 @@
       "base": "debug",
       "mutation": "inflate-main-25x",
       "modeledOn": "node-ipc 12.0.1"
+    },
+    {
+      "id": "node-binary-ms",
+      "base": "ms",
+      "mutation": "inject-node-binary",
+      "modeledOn": "prebuilt-binary droppers (2026): .node appears in a patch with no gyp/lifecycle surface"
+    },
+    {
+      "id": "node-binary-react",
+      "base": "react",
+      "mutation": "inject-node-binary",
+      "modeledOn": "prebuilt-binary droppers (2026): .node appears in a patch with no gyp/lifecycle surface"
+    },
+    {
+      "id": "prebuild-fetcher-debug",
+      "base": "debug",
+      "mutation": "inject-prebuild-fetcher",
+      "modeledOn": "install-time binary fetchers (2026): prebuild-install dep + install script appear in a patch"
+    },
+    {
+      "id": "prebuild-fetcher-chalk",
+      "base": "chalk",
+      "mutation": "inject-prebuild-fetcher",
+      "modeledOn": "install-time binary fetchers (2026): prebuild-install dep + install script appear in a patch"
     }
   ]
 }
