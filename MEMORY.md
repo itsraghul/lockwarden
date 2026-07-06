@@ -128,7 +128,16 @@
   its version commit via `gh pr merge --auto --squash` (repo has auto-merge +
   delete-branch-on-merge enabled). The changesets Version Packages flow is
   unaffected (it was already PR-based). If a CI job is renamed, update the
-  ruleset's required checks or merges will deadlock.
+  ruleset's required checks or merges will deadlock — this now also applies to
+  release.yml's auto-merged `action-pin/<version>` PRs (see below).
+- **2026-07-06 — Action release fully automated** (the pin drifted twice:
+  0.2.0→0.3.1, 0.3.1→0.5.0, both fixed by hand). release.yml now opens an
+  auto-merged `action-pin/<version>` PR after every publish, and the new
+  action-tag.yml force-moves the floating `v1` tag on any action.yml pin
+  change reaching main — guarded by an npm-existence check on the pinned
+  version, so a bad hand-edit can never point v1 at an unpublished CLI.
+  Tag force-push works because the ruleset protects the branch, not tags.
+  Manual fallback: action-tag.yml has workflow_dispatch.
 
 ## Environment / accounts
 

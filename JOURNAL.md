@@ -1,5 +1,18 @@
 # JOURNAL.md — build progression
 
+## 2026-07-06 — Action release automation (PR pending)
+
+The two manual release-completion steps are now CI:
+
+- release.yml: after any publish, syncs `packages/action/action.yml`'s pinned
+  CLI version via an auto-merged `action-pin/<version>` PR (incident-bundle
+  pattern; main stays protected).
+- New action-tag.yml: on any action.yml pin change reaching main, force-moves
+  the floating `v1` tag — after verifying the pinned version actually exists
+  on npm. workflow_dispatch fallback for manual runs.
+- Sequencing note: merge this BEFORE PR #14 (pin 0.3.1→0.5.0) and the v1 tag
+  moves itself when #14 lands — no manual `git tag -f v1` ever again.
+
 ## 2026-07-06 — TOP-500 corpus run: weights locked (PR pending)
 
 The calibration milestone CLAUDE.md gated everything on since day one.
