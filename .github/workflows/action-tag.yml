@@ -1,0 +1,44 @@
+name: action-tag
+
+# Moves the floating v1 tag whenever the Action's pinned CLI version changes
+# on main (release.yml lands that pin bump via an auto-merged PR). Users
+# reference itsraghul/lockwarden/packages/action@v1, so the tag must always
+# point at a main commit whose pin is actually published — this workflow is
+# the release-completion step that used to be a manual `git tag -f v1`.
+
+on:
+  push:
+    branches: [main]
+    paths: ['packages/action/action.yml']
+  workflow_dispatch:
+
+concurrency: action-tag
+
+jobs:
+  move-v1:
+    if: github.repository == 'itsraghul/lockwarden'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: refuse to tag a pin that is not on npm
+        run: |
+          PIN=$(grep -Eo '^ +default: [0-9]+\.[0-9]+\.[0-9]+ *$' packages/action/action.yml | awk '{print $2}')
+          if [ -z "$PIN" ]; then
+            echo "could not extract a pinned CLI version from action.yml"; exit 1
+          fi
+          echo "pinned CLI version: $PIN"
+          STATUS=$(curl -s -o /dev/null -w '%{http_code}' "https://registry.npmjs.org/lockwarden/$PIN")
+          if [ "$STATUS" != "200" ]; then
+            echo "lockwarden@$PIN is not on npm (HTTP $STATUS) — refusing to move v1"; exit 1
+          fi
+
+      - name: force-move v1 to this commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -f v1
+          git push -f origin v1
+          echo "v1 -> $GITHUB_SHA"
