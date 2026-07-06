@@ -12,6 +12,7 @@ export interface GlobalOptions {
   dir: string[];
   threshold: string;
   offline: boolean;
+  maxAdvisoryAge?: string;
 }
 
 function buildProgram(): Command {
@@ -33,7 +34,11 @@ function buildProgram(): Command {
       [] as string[],
     )
     .option('--threshold <grade>', 'minimum severity that triggers exit 1', 'high')
-    .option('--offline', 'hard-fail any network call (exit 2)', false);
+    .option('--offline', 'hard-fail any network call (exit 2)', false)
+    .option(
+      '--max-advisory-age <days>',
+      'exit 2 when the vendored advisory data is older than <days> days',
+    );
 
   program
     .command('audit')

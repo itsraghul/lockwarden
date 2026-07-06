@@ -51,6 +51,7 @@ function auditReport(packages: PackageReport[]): AuditReport {
       counts: { none: 0, low: 0, med: 0, high: 0, critical: 0 },
     },
     warnings: [],
+    advisories: { osvGeneratedAt: '2026-07-03', newestIncident: '2026-06-09' },
   };
 }
 

@@ -166,6 +166,9 @@ Field tables: [JSON output → scan](/reference/json-output/#lockwarden-scan---j
   Layer-2 overlay — see [Scoring](/scoring/).
 - Findings map to SARIF exactly as in `audit` — Critical→`error`, High→`warning`,
   Med→`note`, Low suppressed unless `--verbose`.
+- The report carries the same `advisories` freshness dates as `audit`, and
+  `--max-advisory-age` applies (the Layer-2 overlay is only as good as the vendored
+  data's age).
 
 ## See also
 

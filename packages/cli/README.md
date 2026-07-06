@@ -125,6 +125,7 @@ install-path files. Secrets are always masked in every output mode.
 | `--dir <path>` | project root (repeatable) |
 | `--threshold <grade>` | minimum severity that triggers exit `1` (default: `high`) |
 | `--offline` | hard-fail on any network call (exit `2`) — proves the local-first claim |
+| `--max-advisory-age <days>` | exit `2` when the vendored advisory data is older than `<days>` days |
 
 ## GitHub Action
 

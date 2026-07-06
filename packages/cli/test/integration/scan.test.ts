@@ -148,6 +148,7 @@ describe('scan — baked-in postinstall (tampered dep pre-baked in node_modules)
     expect(parsed.packages).toHaveLength(1);
     expect(parsed.packages[0].root).toBe('package/node_modules/evil-thing');
     const normalized = JSON.parse(r.stdout.replaceAll(ARTIFACTS, '<fixtures>'));
+    normalized.advisories = { osvGeneratedAt: '<date>', newestIncident: '<date>' };
     expect(normalized).toMatchSnapshot();
   });
 

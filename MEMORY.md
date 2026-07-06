@@ -117,6 +117,26 @@
   binaries on darwin; linux variants on CI), grade B each — `--ci --threshold
   high` stays exit 0.
 
+## Advisory freshness design (2026-07-06)
+
+- **OSV snapshot is now a wrapper** `{schemaVersion: 1, generatedAt, source,
+  windowMonths, entries}` — `generatedAt` is the refresh-cadenced stamp behind
+  `--max-advisory-age` and the human `advisories:` line. Incident dates are
+  event-dated context, never a staleness basis (a quiet month ≠ stale data).
+- **Ages never appear in `--json`** — dates only. Integration snapshots pin
+  `advisories` to `<date>` placeholders so future OSV refreshes and incident
+  releases cannot churn snapshots (that's what keeps automated refresh PRs
+  green through full CI).
+- **`LOCKWARDEN_NOW`** (ISO date) is a test-only clock override consumed
+  solely by advisory-age math. Never document it; never let it become config.
+- **Enforcement scope**: audit, scan, `check --incident` only. Plain `check`
+  and `--history` read zero advisory data and must never fail on staleness —
+  the incident-day one-liner from an old pinned install is sacred.
+- **zip64**: npm/all.zip has 221,925 entries (classic-EOCD overflow).
+  lib/zip.ts now reads the zip64 EOCD record (verified against the real
+  archive: 215,163 MAL files decoded in ~2.5s, ~1.1GB RSS — fine on
+  runners). Per-entry zip64 (≥4GiB entries) still errors clearly.
+
 ## Repo protection (2026-07-04)
 
 - `main` is protected by ruleset `protect-main` (id 18502842): PR required

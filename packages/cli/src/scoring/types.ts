@@ -60,6 +60,8 @@ export interface AuditReport {
   packages: PackageReport[]; // only packages with ≥1 active or suppressed finding
   rollup: Rollup;
   warnings: string[];
+  /** Vendored advisory-data freshness stamps — dates only, never ages. */
+  advisories: { osvGeneratedAt: string; newestIncident: string };
   /** Present only when a baseline was applied. */
   baseline?: { path: string; entries: number; matched: number; expired: number };
 }

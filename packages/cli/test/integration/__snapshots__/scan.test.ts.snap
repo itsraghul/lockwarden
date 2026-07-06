@@ -2,6 +2,10 @@
 
 exports[`scan — baked-in postinstall (tampered dep pre-baked in node_modules) > --json emits the stable ScanReport shape 1`] = `
 {
+  "advisories": {
+    "newestIncident": "<date>",
+    "osvGeneratedAt": "<date>",
+  },
   "artifact": {
     "kind": "tgz",
     "path": "<fixtures>/app-baked-postinstall.tgz",

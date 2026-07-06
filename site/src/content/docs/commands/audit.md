@@ -150,6 +150,7 @@ npx lockwarden audit
 grade C — 2 packages flagged of 2 analyzed
 med 1 · low 1
 lockfile: package-lock.json (npm) — mode: absolute
+advisories: OSV 2026-07-03 · newest incident 2026-06-09 (2 days old)
 
   with-post@1.0.0 — grade C
     [med] LW001-LIFECYCLE package.json — lifecycle script "postinstall" runs automatically on install
@@ -249,7 +250,8 @@ Stable, snapshot-tested shape (trimmed to one finding here):
     "packagesFlagged": 2,
     "counts": { "none": 0, "low": 0, "med": 2, "high": 0, "critical": 2 }
   },
-  "warnings": []
+  "warnings": [],
+  "advisories": { "osvGeneratedAt": "2026-07-03", "newestIncident": "2026-06-09" }
 }
 ```
 

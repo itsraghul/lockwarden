@@ -75,6 +75,7 @@ function fixtureReport(): AuditReport {
     packages,
     rollup: buildRollup(packages, 250),
     warnings: [],
+    advisories: { osvGeneratedAt: '2026-07-03', newestIncident: '2026-06-09' },
   };
 }
 
@@ -196,6 +197,7 @@ describe('toSarif', () => {
       packages: [],
       rollup: buildRollup([], 10),
       warnings: [],
+      advisories: { osvGeneratedAt: '2026-07-03', newestIncident: '2026-06-09' },
     };
     const d = toSarif(empty, { toolVersion: '1.2.3' }) as SarifDoc;
     expect(d.runs[0]?.results).toEqual([]);

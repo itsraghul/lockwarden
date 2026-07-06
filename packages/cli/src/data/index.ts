@@ -61,10 +61,40 @@ export interface OsvEntry {
 }
 
 /**
+ * The vendored snapshot file: metadata wrapper + entries. `generatedAt` is
+ * the date the entry set was produced from upstream — the freshness stamp
+ * behind `--max-advisory-age` and the human `advisories:` line. Written by
+ * scripts/refresh-osv-snapshot.ts (weekly osv-refresh.yml).
+ */
+export interface OsvSnapshotFile {
+  schemaVersion: 1;
+  generatedAt: string;
+  source: string;
+  windowMonths: number | null;
+  entries: OsvEntry[];
+}
+
+/**
  * Vendored OSV snapshot, inlined into the single-file build by esbuild.
- * The seed data is refreshed at release time — release cadence IS the
- * data pipeline (no runtime API, ever).
+ * Refreshed via npm releases — release cadence IS the data pipeline
+ * (no runtime API, ever).
  */
 export function loadOsvSnapshot(): OsvEntry[] {
-  return osvSnapshot as OsvEntry[];
+  return (osvSnapshot as OsvSnapshotFile).entries;
+}
+
+/**
+ * Freshness stamps for the vendored advisory shipment. `osvGeneratedAt` is
+ * the refresh-cadenced stamp (the `--max-advisory-age` basis); the newest
+ * incident date is event-dated context, not a staleness signal — a quiet
+ * month is not stale data. Includes LOCKWARDEN_INCIDENT_DIR overlays.
+ */
+export function advisoryFreshness(): { osvGeneratedAt: string; newestIncidentDate: string } {
+  const osvGeneratedAt = (osvSnapshot as OsvSnapshotFile).generatedAt;
+  let newestIncidentDate = '';
+  for (const bundle of loadIncidents().values()) {
+    // YYYY-MM-DD sorts lexically.
+    if (bundle.date > newestIncidentDate) newestIncidentDate = bundle.date;
+  }
+  return { osvGeneratedAt, newestIncidentDate };
 }

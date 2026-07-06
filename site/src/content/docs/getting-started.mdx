@@ -170,7 +170,7 @@ Every command is CI-composable. There are exactly three outcomes:
 | --- | --- |
 | `0` | Clean — no findings at or above `--threshold` |
 | `1` | Findings at or above `--threshold` (default: `high`) |
-| `2` | Execution error — bad arguments, unparseable lockfile, or a network call attempted under `--offline` |
+| `2` | Execution error — bad arguments, unparseable lockfile, a network call attempted under `--offline`, or advisory data older than `--max-advisory-age` |
 
 See the [exit-code reference](/reference/exit-codes/) for the per-command matrix and
 shell/CI snippets.
@@ -187,6 +187,7 @@ These apply to every command:
 | `--dir <path>` | string, repeatable | current dir | Monorepo package root(s) |
 | `--threshold <grade>` | string | `high` | Minimum severity that triggers exit `1` — a severity name (`low`/`med`/`medium`/`high`/`critical`) or a grade letter (`B`/`C`/`D`/`F`) |
 | `--offline` | boolean | `false` | Hard-fail any network call (exit `2`) |
+| `--max-advisory-age <days>` | number | — | Exit `2` when the vendored advisory data is older than `<days>` days (applies to `audit`, `scan`, and `check --incident`) |
 
 `--json` and `--sarif` outputs are stable and snapshot-tested — safe to build tooling on.
 

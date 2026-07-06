@@ -23,7 +23,7 @@ just don't flip the exit code.
 | Command | `0` | `1` | `2` (examples) |
 | --- | --- | --- | --- |
 | [`check`](/commands/check/) | No queried/bundled package resolves anywhere in the tree | At least one match in the resolved tree | No/unparseable lockfile · bad query · unknown incident id · lockfile not in git history (`--history`) |
-| [`audit`](/commands/audit/) | No findings at/above threshold | Findings at/above threshold | Unparseable lockfile · lockfile missing at `--diff` ref · `--diff` + `--deep` together · invalid `--threshold` · integrity mismatch on a fetched tarball · network attempt under `--offline` |
+| [`audit`](/commands/audit/) | No findings at/above threshold | Findings at/above threshold | Unparseable lockfile · lockfile missing at `--diff` ref · `--diff` + `--deep` together · invalid `--threshold` · integrity mismatch on a fetched tarball · network attempt under `--offline` · vendored advisory data older than `--max-advisory-age` |
 | [`drift`](/commands/drift/) | No anomalies at/above threshold | Anomalies at/above threshold | Unknown `--base` ref · lockfile missing at base ref · unparseable lockfile |
 | [`scan`](/commands/scan/) | No findings at/above threshold | Findings at/above threshold | Artifact not found/unreadable · `docker save` failed |
 | [`secrets`](/commands/secrets/) | No findings at/above threshold | Findings at/above threshold | Execution error |

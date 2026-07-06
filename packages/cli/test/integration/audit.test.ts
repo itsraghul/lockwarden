@@ -112,6 +112,7 @@ describe('audit — absolute mode, flagged tree', () => {
     expect(parsed.rollup.counts.low).toBe(1);
     expect(parsed.packages).toHaveLength(2);
     const normalized = JSON.parse(r.stdout.replaceAll(cwd, '<fixture>'));
+    normalized.advisories = { osvGeneratedAt: '<date>', newestIncident: '<date>' };
     expect(normalized).toMatchSnapshot();
   });
 
@@ -170,6 +171,7 @@ describe('audit — baseline suppression', () => {
     expect(withPost.findings).toEqual([]);
     expect(withPost.suppressed).toHaveLength(1);
     const normalized = JSON.parse(r.stdout.replaceAll(cwd, '<fixture>'));
+    normalized.advisories = { osvGeneratedAt: '<date>', newestIncident: '<date>' };
     expect(normalized).toMatchSnapshot();
   });
 
@@ -248,7 +250,53 @@ describe('audit — native-binary (LW009)', () => {
     expect(finding.signal.metrics.nodeFileCount).toBe(1);
     expect(finding.severity).toBe('low');
     const normalized = JSON.parse(r.stdout.replaceAll(cwd, '<fixture>'));
+    normalized.advisories = { osvGeneratedAt: '<date>', newestIncident: '<date>' };
     expect(normalized).toMatchSnapshot();
+  });
+});
+
+describe('audit — advisory freshness', () => {
+  const cwd = join(PROJECTS, 'audit-clean');
+
+  it('prints the advisories line with dates and age (LOCKWARDEN_NOW pinned)', async () => {
+    const r = await run(['audit'], cwd, { LOCKWARDEN_NOW: '2026-07-10' });
+    expect(r.stdout).toContain(
+      'advisories: OSV 2026-07-03 · newest incident 2026-06-09 (7 days old)',
+    );
+  });
+
+  it('--ci hides the advisories line', async () => {
+    const r = await run(['--ci', 'audit'], cwd, { LOCKWARDEN_NOW: '2026-07-10' });
+    expect(r.stdout).not.toContain('advisories:');
+  });
+
+  it('--json carries dates only, never ages', async () => {
+    const r = await run(['--json', 'audit'], cwd);
+    const parsed = JSON.parse(r.stdout);
+    expect(parsed.advisories.osvGeneratedAt).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    expect(parsed.advisories.newestIncident).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    expect(r.stdout).not.toContain('days old');
+  });
+
+  it('--max-advisory-age fails with exit 2 when data is too old', async () => {
+    const r = await run(['--max-advisory-age', '30', 'audit'], cwd, {
+      LOCKWARDEN_NOW: '2099-01-01',
+    });
+    expect(r.code).toBe(2);
+    expect(r.stderr).toContain('days old');
+    expect(r.stderr).toContain('npx lockwarden@latest');
+  });
+
+  it('--max-advisory-age passes when data is fresh enough', async () => {
+    const r = await run(['--max-advisory-age', '36500', 'audit'], cwd);
+    expect(r.code).toBe(0);
+  });
+
+  it('invalid --max-advisory-age values are exit 2', async () => {
+    for (const bad of ['abc', '-1', '2.5']) {
+      const r = await run(['--max-advisory-age', bad, 'audit'], cwd);
+      expect(r.code).toBe(2);
+    }
   });
 });
 

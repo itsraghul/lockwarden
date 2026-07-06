@@ -2,6 +2,10 @@
 
 exports[`audit — absolute mode, flagged tree > --json emits the stable AuditReport shape 1`] = `
 {
+  "advisories": {
+    "newestIncident": "<date>",
+    "osvGeneratedAt": "<date>",
+  },
   "command": "audit",
   "lockfile": {
     "path": "<fixture>/package-lock.json",
@@ -138,6 +142,10 @@ exports[`audit — absolute mode, flagged tree > --sarif emits SARIF 2.1.0 with 
 
 exports[`audit — baseline suppression > --json carries suppressed findings, suppressedCounts, and baseline info 1`] = `
 {
+  "advisories": {
+    "newestIncident": "<date>",
+    "osvGeneratedAt": "<date>",
+  },
   "baseline": {
     "entries": 2,
     "expired": 1,
@@ -300,6 +308,10 @@ exports[`audit — baseline suppression > --sarif emits suppressed results with 
 
 exports[`audit — native-binary (LW009) > --json carries the LW009 signal shape (snapshot) 1`] = `
 {
+  "advisories": {
+    "newestIncident": "<date>",
+    "osvGeneratedAt": "<date>",
+  },
   "command": "audit",
   "lockfile": {
     "path": "<fixture>/package-lock.json",
