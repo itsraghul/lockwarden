@@ -144,14 +144,22 @@
 - Repo-local git identity is `58110802+itsraghul@users.noreply.github.com`; the
   machine default is the raghul-velt work account. npm publish account:
   `raghul2521`. Both verified 2026-07-03.
-- **2026-07-06 — origin remote pinned to the itsraghul account**: the gh CLI's
-  *active* account kept flipping back to raghul-velt between sessions (three
-  403s on push). The remote is now
-  `https://itsraghul@github.com/itsraghul/lockwarden.git` — the embedded
-  username makes gh's credential helper serve the itsraghul token regardless
-  of the active account, so `git push` can no longer 403. `gh` API commands
-  (pr create, workflow run) still follow the ACTIVE account — keep the
-  `gh auth switch --user itsraghul` guard for those.
+- ~~**2026-07-06 — origin remote pinned to the itsraghul account**: … the
+  embedded username makes gh's credential helper serve the itsraghul token
+  regardless of the active account.~~ **WRONG — corrected same day**: gh's
+  credential helper only ever serves the ACTIVE account's token; with a
+  username-pinned URL and the wrong active account it serves nothing and git
+  falls back to a TTY prompt ("Device not configured" in non-interactive
+  shells). Remote reverted to the plain URL. The gh active account DOES keep
+  flipping to raghul-velt between sessions (4 known 403s), so the working
+  guard remains: `gh auth switch --user itsraghul` before ANY push or gh
+  write command in this repo. A durable fix exists — storing the itsraghul
+  token in the osxkeychain helper keyed by username — but that is a
+  credential-store write the repo owner must do themselves:
+  `gh auth token --user itsraghul | { read -r T; printf
+  "protocol=https\nhost=github.com\nusername=itsraghul\npassword=%s\n" "$T"
+  | git credential-osxkeychain store; }` plus re-pinning the remote URL to
+  `https://itsraghul@github.com/itsraghul/lockwarden.git`.
 - `LOCKWARDEN_REGISTRY` and `LOCKWARDEN_INCIDENT_DIR` env vars exist for
   testability/self-hosted registries — they are not, and must never become,
   telemetry or config surface.
