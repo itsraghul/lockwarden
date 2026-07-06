@@ -144,6 +144,14 @@
 - Repo-local git identity is `58110802+itsraghul@users.noreply.github.com`; the
   machine default is the raghul-velt work account. npm publish account:
   `raghul2521`. Both verified 2026-07-03.
+- **2026-07-06 — origin remote pinned to the itsraghul account**: the gh CLI's
+  *active* account kept flipping back to raghul-velt between sessions (three
+  403s on push). The remote is now
+  `https://itsraghul@github.com/itsraghul/lockwarden.git` — the embedded
+  username makes gh's credential helper serve the itsraghul token regardless
+  of the active account, so `git push` can no longer 403. `gh` API commands
+  (pr create, workflow run) still follow the ACTIVE account — keep the
+  `gh auth switch --user itsraghul` guard for those.
 - `LOCKWARDEN_REGISTRY` and `LOCKWARDEN_INCIDENT_DIR` env vars exist for
   testability/self-hosted registries — they are not, and must never become,
   telemetry or config surface.
