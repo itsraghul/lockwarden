@@ -57,6 +57,9 @@ jobs:
 
       - name: version + publish to npm (before the PR — data freshness first)
         if: steps.refresh.outputs.changed == 'true'
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: 'true'
         run: |
           DATE=$(date -u +%F)
           cat > ".changeset/osv-refresh-$DATE.md" <<EOF
