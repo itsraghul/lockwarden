@@ -1,6 +1,6 @@
 {
-  "note": "PROVISIONAL — gated by separation-report.md. Not final until the full top-500 corpus run.",
-  "generatedAt": "2026-07-05",
+  "note": "LOCKED by the top-500 separation gate — changing anything requires a corpus re-run.",
+  "generatedAt": "2026-07-06",
   "layer1": {
     "lifecycle-scripts": {
       "absolute": "med",
@@ -53,19 +53,19 @@
     "none": "A"
   },
   "measured": {
-    "benignPackages": 60,
-    "benignDeltaPairs": 60,
-    "maliciousFixtures": 20,
+    "benignPackages": 500,
+    "benignDeltaPairs": 496,
+    "maliciousFixtures": 22,
     "benignHighOrWorseAbsoluteRatePct": 0,
     "benignDeltaCriticalPackages": 0,
     "perAnalyzer": {
       "lifecycle-scripts": {
-        "benignAbsHits": 5,
+        "benignAbsHits": 64,
         "benignDeltaHits": 0,
-        "malDeltaHits": 7
+        "malDeltaHits": 9
       },
       "binding-gyp": {
-        "benignAbsHits": 0,
+        "benignAbsHits": 9,
         "benignDeltaHits": 0,
         "malDeltaHits": 4
       },
@@ -81,7 +81,7 @@
       },
       "size-delta": {
         "benignAbsHits": 0,
-        "benignDeltaHits": 0,
+        "benignDeltaHits": 9,
         "malDeltaHits": 3
       },
       "dep-introduction": {
@@ -90,17 +90,17 @@
         "malDeltaHits": 2
       },
       "obfuscation": {
-        "benignAbsHits": 2,
+        "benignAbsHits": 6,
         "benignDeltaHits": 0,
         "malDeltaHits": 3
       },
       "phantom-deps": {
-        "benignAbsHits": 2,
-        "benignDeltaHits": 0,
+        "benignAbsHits": 34,
+        "benignDeltaHits": 2,
         "malDeltaHits": 4
       },
       "native-binary": {
-        "benignAbsHits": 0,
+        "benignAbsHits": 7,
         "benignDeltaHits": 0,
         "malDeltaHits": 4
       }

@@ -18,7 +18,8 @@ export type MutationKind =
   | 'inflate-main-25x'
   | 'add-phantom-dep'
   | 'inject-node-binary'
-  | 'inject-prebuild-fetcher';
+  | 'inject-prebuild-fetcher'
+  | 'tamper-install-script';
 
 /** Bump the patch component of a semver-ish version; falls back to +".1". */
 export function patchBumpVersion(version: string): string {
@@ -195,6 +196,24 @@ export function applyMutation(entries: RawEntry[], kind: MutationKind): RawEntry
           : {};
       scripts.install = 'prebuild-install || node-gyp rebuild';
       manifest.scripts = scripts;
+      break;
+    }
+    case 'tamper-install-script': {
+      // Models node-ipc 9.2.3: a payload APPENDED to an install-trigger
+      // script that already existed in the previous version. Guards the
+      // toolchain-migration exemption in lifecycle-scripts — the appended
+      // segment is not a toolchain invocation, so the delta must still fire.
+      const scripts =
+        manifest.scripts !== null && typeof manifest.scripts === 'object'
+          ? (manifest.scripts as Record<string, unknown>)
+          : {};
+      const hook =
+        ['install', 'postinstall', 'preinstall'].find((h) => typeof scripts[h] === 'string') ??
+        'install';
+      const existing = typeof scripts[hook] === 'string' ? (scripts[hook] as string) : '';
+      scripts[hook] = existing === '' ? 'node lw-inert.js' : `${existing} && node lw-inert.js`;
+      manifest.scripts = scripts;
+      push('lw-inert.js', INERT_MARKER);
       break;
     }
     case 'add-phantom-dep': {

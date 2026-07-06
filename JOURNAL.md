@@ -1,5 +1,24 @@
 # JOURNAL.md — build progression
 
+## 2026-07-06 — TOP-500 corpus run: weights locked (PR pending)
+
+The calibration milestone CLAUDE.md gated everything on since day one.
+
+- Benign set grown 162 → 500 (npm-high-impact topDownload merge), 496 real
+  version-bump pairs fetched (~127 MB cache, 0 failures).
+- First run: GATE FAIL — exactly one benign delta Critical in 496 bumps:
+  bcrypt 6.0.0's node-pre-gyp→prebuildify migration tripped the lifecycle
+  changed-body delta. Fixed with a pure-toolchain-migration exemption in
+  lifecycle-scripts (introduced hooks still always fire) + 2 new
+  tamper-install-script fixtures proving appended payloads still grade F.
+- Re-run: **GATE PASS** — 0/496 benign delta Criticals, all 22 malicious F.
+  Weights in weights.ts are now LOCKED (header + CLAUDE.md + docs updated);
+  run.ts report/weights.json wording graduates automatically at ≥500.
+- Patch changeset: the lifecycle exemption ships as an FP fix.
+
+**Pending:** merge PR; monitor size-delta's 9/496 benign delta Highs at the
+next re-run (below the gate, recorded in MEMORY.md).
+
 ## 2026-07-05 — audit baseline suppression (v0.4 changeset staged, PR pending)
 
 The CI-adoption unblocker: a checked-in `.lockwarden-baseline.json` of reviewed

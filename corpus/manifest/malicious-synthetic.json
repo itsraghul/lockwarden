@@ -1,5 +1,5 @@
 {
-  "comment": "Synthetic malicious mutation specs. Every payload is DEFANGED — injected files contain only an inert comment; nothing here is executable malware. base = a benign package from benign-top500.json whose CURRENT tarball must be in corpus/cache/. modeledOn names the 2026 incident whose shape the mutation reproduces.",
+  "comment": "Synthetic malicious mutation specs. Every payload is DEFANGED \u2014 injected files contain only an inert comment; nothing here is executable malware. base = a benign package from benign-top500.json whose CURRENT tarball must be in corpus/cache/. modeledOn names the 2026 incident whose shape the mutation reproduces.",
   "specs": [
     {
       "id": "postinstall-lodash",
@@ -120,6 +120,18 @@
       "base": "chalk",
       "mutation": "inject-prebuild-fetcher",
       "modeledOn": "install-time binary fetchers (2026): prebuild-install dep + install script appear in a patch"
+    },
+    {
+      "id": "tamper-install-bcrypt",
+      "base": "bcrypt",
+      "mutation": "tamper-install-script",
+      "modeledOn": "node-ipc 9.2.3: payload appended to an EXISTING install script in a version bump"
+    },
+    {
+      "id": "tamper-install-esbuild",
+      "base": "esbuild",
+      "mutation": "tamper-install-script",
+      "modeledOn": "node-ipc 9.2.3: payload appended to an EXISTING postinstall script in a version bump"
     }
   ]
 }
