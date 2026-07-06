@@ -1,5 +1,24 @@
 # JOURNAL.md — build progression
 
+## 2026-07-06 — weekly OSV refresh pipeline (PR pending)
+
+Operational-trust release, part 2 of 2. The "refresh before release" seed
+note finally becomes machinery.
+
+- scripts/refresh-osv-snapshot.ts: OSV.dev npm MAL subset via the zip64
+  reader, published-only window ladder (18→3mo) under a 1.5MB budget,
+  keep-list merge, no-op detection. Dry-run against the real 200MB archive:
+  6mo window → 5,495 entries @ 1.07MB.
+- scripts/validate-osv-snapshot.ts: wrapper shape + keep-list survival +
+  audit self-test (plain-crypto-js hit → exit 1 w/ LW2-OSV code).
+- osv-refresh.yml: Monday cron + force dispatch, publish-first + auto-merge
+  PR (incident-bundle pattern).
+- Dry-run findings fixed: three tests hardcoded vendored dates and would
+  have broken on every refresh — now derived from the data (see MEMORY.md).
+  Full suite green WITH a refreshed snapshot in-tree.
+- Ships no data change itself (no changeset); the first supervised
+  workflow_dispatch does the inaugural refresh + patch release.
+
 ## 2026-07-06 — advisory freshness + zip64 (v0.6 changeset staged, PR pending)
 
 Operational-trust release, part 1 of 2 (part 2 = the weekly OSV refresh

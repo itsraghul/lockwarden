@@ -137,6 +137,27 @@
   archive: 215,163 MAL files decoded in ~2.5s, ~1.1GB RSS — fine on
   runners). Per-entry zip64 (≥4GiB entries) still errors clearly.
 
+## OSV refresh pipeline (2026-07-06)
+
+- **Window ladder is the steady-state mechanism, not a fallback**: real MAL
+  volume (dry-run 2026-07-06: 18mo=196k entries/36MB, 12mo=191k/35MB,
+  9mo=150k/27MB, 6mo=5.5k/1.07MB) means the 1.5MB budget lands on the 6mo
+  window today. Filter on `published` ONLY — bulk re-imports touch `modified`
+  across entire corpora and would pull all 215k entries.
+- **osv-keep.json contract**: entries there can never vanish from the
+  snapshot (validator hard-fails; tests + the audit-layer2 fixture depend on
+  MAL-2026-0117 et al.). Merge = upstream wins on (id, package), keep fills.
+  Keep summaries must stay ≤140 chars (validator limit).
+- **No-op weeks publish nothing** — a stale generatedAt on the latest release
+  is the only signal the pipeline died, surfaced by --max-advisory-age.
+  `workflow_dispatch` with `force: true` re-stamps deliberately.
+- **Tests must derive date expectations from the vendored data**, never
+  hardcode them — the dry-run caught three tests that would have broken on
+  every weekly refresh (layer2 exact-pair, advisory-age boundary, the human
+  freshness line). Full suite runs green with a real refreshed snapshot
+  in-tree (that's the proof refresh PRs pass CI). dist grows ~176KB → ~1.4MB
+  with a full 6mo snapshot — within the deliberate budget.
+
 ## Repo protection (2026-07-04)
 
 - `main` is protected by ruleset `protect-main` (id 18502842): PR required

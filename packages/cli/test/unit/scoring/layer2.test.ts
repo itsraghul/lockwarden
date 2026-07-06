@@ -122,8 +122,11 @@ describe('loadLayer2Sources', () => {
 
   it('flags node-ipc 9.1.6 via both the OSV snapshot and the incident bundle', () => {
     const findings = layer2Findings({ name: 'node-ipc', version: '9.1.6' }, loadLayer2Sources());
-    const sourcesHit = findings.map((f) => f.layer2.source).sort();
-    expect(sourcesHit).toEqual(['incident', 'osv']);
+    // Refresh-proof: upstream OSV may carry additional MAL entries for the
+    // same package — require ≥1 hit from EACH source, not an exact pair.
+    const sourcesHit = new Set(findings.map((f) => f.layer2.source));
+    expect(sourcesHit.has('incident')).toBe(true);
+    expect(sourcesHit.has('osv')).toBe(true);
   });
 
   it('flags every plain-crypto-js version (match-all range)', () => {
