@@ -59,6 +59,9 @@ jobs:
         run: pnpm test:unit
 
       - name: version + publish to npm (before the PR — incident speed first)
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: 'true'
         run: |
           cat > ".changeset/incident-${{ steps.bundle.outputs.id }}.md" <<EOF
           ---
