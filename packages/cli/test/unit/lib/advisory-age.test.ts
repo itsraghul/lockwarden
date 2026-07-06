@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { advisoryFreshness } from '../../../src/data/index.js';
 import { ExecError } from '../../../src/exit.js';
 import {
   advisoryAgeDays,
@@ -63,8 +64,13 @@ describe('enforceMaxAdvisoryAge', () => {
   });
 
   it('age == max passes (boundary)', () => {
-    // Vendored generatedAt is 2026-07-03; 7 days later, max 7 passes, max 6 fails.
-    vi.stubEnv('LOCKWARDEN_NOW', '2026-07-10');
+    // Refresh-proof: derive "7 days after the vendored stamp" from the data
+    // itself, so weekly OSV refreshes never break this boundary check.
+    const { osvGeneratedAt } = advisoryFreshness();
+    const sevenDaysLater = new Date(Date.parse(`${osvGeneratedAt}T00:00:00Z`) + 7 * 86_400_000)
+      .toISOString()
+      .slice(0, 10);
+    vi.stubEnv('LOCKWARDEN_NOW', sevenDaysLater);
     expect(() => enforceMaxAdvisoryAge('7')).not.toThrow();
     expect(() => enforceMaxAdvisoryAge('6')).toThrow(ExecError);
   });

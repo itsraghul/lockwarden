@@ -98,7 +98,15 @@ releases**.
    listed package must exit `1`; a clean one must exit `0`), and published as an npm
    patch release — an automated workflow takes a bundle JSON to a published release,
    targeting hours, not days.
-3. Updating is running the latest version — which `npx lockwarden` does by default.
+3. **The OSV snapshot refreshes weekly, automatically.** A scheduled workflow pulls the
+   OSV.dev npm malicious-package dataset, keeps the largest recency window that fits a
+   fixed size budget (plus a keep-list guaranteeing canonical incident entries never
+   vanish), runs the same validate/self-test gate, and publishes a patch release —
+   no human in the loop. A quiet week publishes nothing.
+4. Updating is running the latest version — which `npx lockwarden` does by default.
+   The report's `advisories` dates show what your install carries, and
+   [`--max-advisory-age`](/getting-started/#global-flags) turns staleness into a CI
+   failure — the dead-man's-switch that surfaces a silently dead refresh pipeline.
 
 You get auditable, versioned, reproducible advisory data — a bundle is a diffable JSON
 file in a release published with npm provenance — instead of an opaque live endpoint

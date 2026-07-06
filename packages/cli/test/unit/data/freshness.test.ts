@@ -2,7 +2,7 @@ import { mkdtemp, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { advisoryFreshness, loadOsvSnapshot } from '../../../src/data/index.js';
+import { advisoryFreshness, loadIncidents, loadOsvSnapshot } from '../../../src/data/index.js';
 
 describe('advisoryFreshness', () => {
   afterEach(() => {
@@ -16,8 +16,12 @@ describe('advisoryFreshness', () => {
 
   it('newest incident is the lexical max of vendored bundle dates', () => {
     const { newestIncidentDate } = advisoryFreshness();
-    // shai-hulud-jun26 is the newest vendored bundle.
-    expect(newestIncidentDate).toBe('2026-06-09');
+    // Incident-proof: compute the expected max from the bundles themselves.
+    const expected = [...loadIncidents().values()]
+      .map((b) => b.date)
+      .sort()
+      .at(-1);
+    expect(newestIncidentDate).toBe(expected);
   });
 
   it('a LOCKWARDEN_INCIDENT_DIR overlay with a later date wins', async () => {

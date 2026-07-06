@@ -118,7 +118,13 @@ new IOC bundle is cut and published as an **npm patch release, typically within 
 hit/clean self-test, and a regression gate, then publishes to npm (the one-liner works
 worldwide immediately) and lands the commit through a PR. Updating is just running the
 latest version, which `npx` does by default. The same mechanism refreshes the vendored
-OSV snapshot used by the [Layer-2 overlay](/scoring/#layer-2--known-bad-overlay).
+OSV snapshot used by the [Layer-2 overlay](/scoring/#layer-2--known-bad-overlay) — on a
+weekly schedule, automatically: the refresh keeps the largest recency window of OSV.dev
+npm malicious-package entries that fits a fixed size budget, always preserving the
+canonical incident entries. Freshness is visible in every report (`advisories` dates)
+and enforceable in CI via `--max-advisory-age <days>` (exit 2 when your installed
+lockwarden's data is older). Note the age basis is the OSV snapshot's generation date,
+not incident dates — incidents are event-dated, and a quiet month is not stale data.
 
 This is a deliberate trade: you get auditable, versioned, reproducible advisory data (a
 bundle is a diffable JSON file in a release published with npm provenance) instead of an

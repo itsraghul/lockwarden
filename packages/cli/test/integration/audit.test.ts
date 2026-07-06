@@ -9,6 +9,9 @@ import { promisify } from 'node:util';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 // Dev-side ustar writer from the corpus harness (vitest resolves .ts imports).
 import { writeTarGz } from '../../../../corpus/src/tar-write.ts';
+// Vendored data — the freshness assertions derive expectations from it so
+// weekly OSV refreshes and new incident bundles never break these tests.
+import { advisoryFreshness } from '../../src/data/index.ts';
 
 const execFileAsync = promisify(execFile);
 
@@ -259,9 +262,13 @@ describe('audit — advisory freshness', () => {
   const cwd = join(PROJECTS, 'audit-clean');
 
   it('prints the advisories line with dates and age (LOCKWARDEN_NOW pinned)', async () => {
-    const r = await run(['audit'], cwd, { LOCKWARDEN_NOW: '2026-07-10' });
+    const { osvGeneratedAt, newestIncidentDate } = advisoryFreshness();
+    const sevenDaysLater = new Date(Date.parse(`${osvGeneratedAt}T00:00:00Z`) + 7 * 86_400_000)
+      .toISOString()
+      .slice(0, 10);
+    const r = await run(['audit'], cwd, { LOCKWARDEN_NOW: sevenDaysLater });
     expect(r.stdout).toContain(
-      'advisories: OSV 2026-07-03 · newest incident 2026-06-09 (7 days old)',
+      `advisories: OSV ${osvGeneratedAt} · newest incident ${newestIncidentDate} (7 days old)`,
     );
   });
 
