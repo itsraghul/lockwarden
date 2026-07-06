@@ -2,6 +2,7 @@ import { relative } from 'node:path';
 import { type IncidentBundle, loadIncidents } from '../data/index.js';
 import { ExecError, ExitCode } from '../exit.js';
 import type { GlobalOptions } from '../index.js';
+import { enforceMaxAdvisoryAge } from '../lib/advisory-age.js';
 import { lockfileHistory, repoRoot, showFileAt } from '../lib/git.js';
 import { setOffline } from '../lib/net.js';
 import { bad, bold, configureOutput, dim, ok, printJson } from '../lib/output.js';
@@ -70,6 +71,10 @@ export async function runCheck(
   let incident: IncidentBundle | undefined;
   let effectiveQueries = queries;
   if (options.incident) {
+    // Advisory-age enforcement applies ONLY here: plain check/--history read
+    // the lockfile and git, never advisory data — the incident-day triage
+    // one-liner must not fail on staleness.
+    enforceMaxAdvisoryAge(globals.maxAdvisoryAge);
     incident = loadIncidents().get(options.incident);
     if (!incident) {
       const known = [...loadIncidents().keys()].sort().join(', ');

@@ -78,6 +78,44 @@ function makeZip(entries: Entry[]): Buffer {
   return Buffer.concat([...locals, centralDir, eocd]);
 }
 
+/**
+ * Wrap a classic zip as zip64: real values move to the zip64 EOCD record
+ * (+locator), the classic EOCD carries overflow sentinels — the exact shape
+ * of archives with >65,535 entries (e.g. the OSV all.zip).
+ */
+function makeZip64(entries: Entry[]): Buffer {
+  const classic = makeZip(entries);
+  const body = classic.subarray(0, classic.length - 22);
+  const eocdClassic = classic.subarray(classic.length - 22);
+  const realEntries = eocdClassic.readUInt16LE(10);
+  const realCdSize = eocdClassic.readUInt32LE(12);
+  const realCdOffset = eocdClassic.readUInt32LE(16);
+
+  const record = Buffer.alloc(56);
+  record.writeUInt32LE(0x06064b50, 0);
+  record.writeBigUInt64LE(44n, 4); // size of remainder
+  record.writeUInt16LE(45, 12); // version made by
+  record.writeUInt16LE(45, 14); // version needed
+  record.writeBigUInt64LE(BigInt(realEntries), 24); // entries on this disk
+  record.writeBigUInt64LE(BigInt(realEntries), 32); // total entries
+  record.writeBigUInt64LE(BigInt(realCdSize), 40);
+  record.writeBigUInt64LE(BigInt(realCdOffset), 48);
+
+  const locator = Buffer.alloc(20);
+  locator.writeUInt32LE(0x07064b50, 0);
+  locator.writeBigUInt64LE(BigInt(body.length), 8); // record sits right after body
+  locator.writeUInt32LE(1, 16); // total disks
+
+  const eocd = Buffer.alloc(22);
+  eocd.writeUInt32LE(0x06054b50, 0);
+  eocd.writeUInt16LE(0xffff, 8);
+  eocd.writeUInt16LE(0xffff, 10);
+  eocd.writeUInt32LE(0xffffffff, 12);
+  eocd.writeUInt32LE(0xffffffff, 16);
+
+  return Buffer.concat([body, record, locator, eocd]);
+}
+
 /** Byte offset of the first central-directory entry (for corruption tests). */
 function centralDirOffset(zip: Buffer): number {
   for (let pos = 0; pos + 4 <= zip.length; pos++) {
@@ -132,11 +170,35 @@ describe('readZip', () => {
     expect(readZip(zip).map((e) => e.path)).toEqual(['a/b.txt']);
   });
 
-  it('fails clearly on zip64 markers', () => {
+  it('decodes zip64 archives (sentinel EOCD + zip64 record)', () => {
+    const zip = makeZip64([
+      { path: 'package.json', data: '{"name":"z64","version":"1.0.0"}', method: 0 },
+      { path: 'lib/index.js', data: 'module.exports = 64;\n', method: 8 },
+    ]);
+    const entries = readZip(zip);
+    expect(entries.map((e) => e.path)).toEqual(['package.json', 'lib/index.js']);
+    expect(entries[1]?.data.toString('utf8')).toBe('module.exports = 64;\n');
+  });
+
+  it('fails clearly on a sentinel EOCD with no zip64 locator', () => {
     const zip = makeZip([{ path: 'a.txt', data: 'x', method: 0 }]);
     // EOCD is the last 22 bytes; force totalEntries to the zip64 sentinel.
     zip.writeUInt16LE(0xffff, zip.length - 22 + 10);
-    expect(() => readZip(zip)).toThrow(/zip64 archives are not supported/);
+    expect(() => readZip(zip)).toThrow(/locator not found/);
+  });
+
+  it('fails clearly on a corrupt zip64 EOCD record signature', () => {
+    const zip = makeZip64([{ path: 'a.txt', data: 'x', method: 0 }]);
+    // The zip64 record starts 56+20+22 bytes from the end; corrupt its signature.
+    zip.writeUInt32LE(0xdeadbeef, zip.length - 98);
+    expect(() => readZip(zip)).toThrow(/bad EOCD64 record signature/);
+  });
+
+  it('fails clearly on zip64 per-entry sentinels', () => {
+    const zip = makeZip([{ path: 'a.txt', data: 'x', method: 0 }]);
+    const cd = centralDirOffset(zip);
+    zip.writeUInt32LE(0xffffffff, cd + 20); // compressed size sentinel
+    expect(() => readZip(zip)).toThrow(/zip64 entry sizes\/offsets are not supported/);
   });
 
   it('fails clearly on encrypted entries', () => {

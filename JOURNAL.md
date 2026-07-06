@@ -1,5 +1,21 @@
 # JOURNAL.md — build progression
 
+## 2026-07-06 — advisory freshness + zip64 (v0.6 changeset staged, PR pending)
+
+Operational-trust release, part 1 of 2 (part 2 = the weekly OSV refresh
+pipeline, which this unblocks).
+
+- OSV snapshot migrated to a `generatedAt`-stamped wrapper; new
+  `advisoryFreshness()`; `audit`/`scan` reports carry additive `advisories`
+  dates (never ages) + a human freshness line.
+- New global `--max-advisory-age <days>` → exit 2 on stale vendored data
+  (audit, scan, check --incident only; plain check exempt by design).
+- zip64 EOCD support in lib/zip.ts — needed for the OSV all.zip (221,925
+  entries) and a real `scan` improvement for >65k-file artifacts; validated
+  against the live 200MB archive.
+- Tests 296 → 320; snapshots pinned so refresh/incident releases can't churn
+  them; `LOCKWARDEN_NOW` test clock (see MEMORY.md).
+
 ## 2026-07-06 — Action release automation (PR pending)
 
 The two manual release-completion steps are now CI:

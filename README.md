@@ -57,7 +57,7 @@ Exit codes are the API: **`0`** clean · **`1`** findings at/above threshold · 
 | [`scan`](https://lockwarden.dev/commands/scan/) | Same analysis on an artifact on disk — tarball, zip, dir, or `docker save` layers. |
 | [`secrets`](https://lockwarden.dev/commands/secrets/) | Minimal hardcoded-credential scan, always masked. |
 
-Global flags: `--json` · `--sarif` (GitHub Security tab) · `--ci` · `--dir` · `--threshold <grade>` · `--offline` (hard-fails on any network call).
+Global flags: `--json` · `--sarif` (GitHub Security tab) · `--ci` · `--dir` · `--threshold <grade>` · `--offline` (hard-fails on any network call) · `--max-advisory-age <days>` (exit 2 on stale vendored advisory data).
 
 ## GitHub Action
 

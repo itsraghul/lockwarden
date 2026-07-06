@@ -9,8 +9,10 @@ import { gzipSync } from 'node:zlib';
 import pkgJson from '../../package.json' with { type: 'json' };
 import { ALL_ANALYZERS } from '../analyzers/index.js';
 import type { AnalyzerContext, FileEntry, Signal } from '../analyzers/types.js';
+import { advisoryFreshness } from '../data/index.js';
 import { ExecError, ExitCode } from '../exit.js';
 import type { GlobalOptions } from '../index.js';
+import { advisoryAgeDays, advisoryNow, enforceMaxAdvisoryAge } from '../lib/advisory-age.js';
 import {
   type ArchiveEntry,
   applyLayers,
@@ -55,6 +57,8 @@ export interface ScanReport {
   packages: ScanPackageReport[]; // only packages with ≥1 finding
   rollup: Rollup;
   warnings: string[];
+  /** Vendored advisory-data freshness stamps — dates only, never ages. */
+  advisories: { osvGeneratedAt: string; newestIncident: string };
 }
 
 const PACKAGE_ANALYZERS = ALL_ANALYZERS.filter((a) => a.scope === 'package');
@@ -68,6 +72,7 @@ export async function runScan(
   setOffline(globals.offline); // scan does no network — offline is always satisfiable
   // Parse the threshold before any work: a bad value is exit 2, immediately.
   const threshold = parseThreshold(globals.threshold);
+  enforceMaxAdvisoryAge(globals.maxAdvisoryAge);
 
   if (options.image !== undefined && artifactPath !== undefined) {
     throw new ExecError(
@@ -109,12 +114,18 @@ export async function runScan(
     );
   const rollup = buildRollup(reports, embedded.length);
 
+  const freshness = advisoryFreshness();
+  const advisories = {
+    osvGeneratedAt: freshness.osvGeneratedAt,
+    newestIncident: freshness.newestIncidentDate,
+  };
   const report: ScanReport = {
     command: 'scan',
     artifact: { path: displayPath, kind, roots: embedded.length },
     packages: flagged,
     rollup,
     warnings,
+    advisories,
   };
 
   // SARIF + threshold reuse the audit-shaped view: artifactLocation.uri is
@@ -129,6 +140,7 @@ export async function runScan(
     })),
     rollup,
     warnings,
+    advisories,
   };
 
   const exitCode = exceedsThreshold(auditView, threshold) ? ExitCode.Findings : ExitCode.Clean;
@@ -483,6 +495,12 @@ function renderHuman(report: ScanReport, globals: GlobalOptions): void {
   console.log(
     dim(
       `artifact: ${artifactRel} (${report.artifact.kind}) — ${report.artifact.roots} embedded package ${roots}`,
+    ),
+  );
+  const advisoryAge = advisoryAgeDays(report.advisories.osvGeneratedAt, advisoryNow());
+  console.log(
+    dim(
+      `advisories: OSV ${report.advisories.osvGeneratedAt} · newest incident ${report.advisories.newestIncident} (${advisoryAge} day${advisoryAge === 1 ? '' : 's'} old)`,
     ),
   );
   for (const warning of report.warnings) console.log(dim(`warning: ${warning}`));

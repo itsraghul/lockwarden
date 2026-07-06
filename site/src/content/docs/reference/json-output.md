@@ -151,6 +151,8 @@ With `--history` the document instead carries a `history` object:
 | `rollup.packagesFlagged` | number | Packages with ≥1 finding |
 | `rollup.counts` | object | Finding count per severity |
 | `warnings[]` | string[] | Non-fatal notes |
+| `advisories.osvGeneratedAt` | string | Date the vendored OSV snapshot was generated (`YYYY-MM-DD`) — the `--max-advisory-age` basis |
+| `advisories.newestIncident` | string | Date of the newest vendored incident bundle — event-dated context, not a staleness signal |
 
 ### Baseline fields (additive, only when a baseline is applied)
 
@@ -309,6 +311,7 @@ Identical to the `audit` report except:
 | `artifact` replaces `lockfile` | `{ "path": "app.tgz", "kind": "tgz" \| "zip" \| "dir" \| "docker-save", "roots": 2 }` — `roots` counts embedded package roots found |
 | `packages[].root` | Path of the package root *inside the artifact*, e.g. `"package/node_modules/evil-thing"` |
 | No `mode` field | `scan` is always absolute analysis + Layer-2 overlay |
+| `advisories` | Same freshness stamps as `audit` (`osvGeneratedAt`, `newestIncident`) — dates only, ages never appear in JSON |
 
 ## `lockwarden secrets --json`
 

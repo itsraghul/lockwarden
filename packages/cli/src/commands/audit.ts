@@ -9,8 +9,10 @@ import type {
   PackageArtifact,
   Signal,
 } from '../analyzers/types.js';
+import { advisoryFreshness } from '../data/index.js';
 import { ExecError, ExitCode } from '../exit.js';
 import type { GlobalOptions } from '../index.js';
+import { advisoryAgeDays, advisoryNow, enforceMaxAdvisoryAge } from '../lib/advisory-age.js';
 import { dirToArtifact, tarballToArtifact } from '../lib/artifact.js';
 import { cachedTarball } from '../lib/cache.js';
 import { repoRoot, showFileAt } from '../lib/git.js';
@@ -51,6 +53,7 @@ export async function runAudit(options: AuditOptions, globals: GlobalOptions): P
   setOffline(globals.offline);
   // Parse the threshold before any work: a bad value is exit 2, immediately.
   const threshold = parseThreshold(globals.threshold);
+  enforceMaxAdvisoryAge(globals.maxAdvisoryAge);
 
   if (options.diff !== undefined && options.deep === true) {
     throw new ExecError(
@@ -152,10 +155,15 @@ export async function runAudit(options: AuditOptions, globals: GlobalOptions): P
   const rollup = buildRollup(scored, graph.packages.size);
   if (suppressedCounts !== undefined) rollup.suppressedCounts = suppressedCounts;
 
+  const freshness = advisoryFreshness();
   const report: AuditReport = {
     command: 'audit',
     mode,
     lockfile: { path: graph.lockfilePath, type: graph.lockfileType },
+    advisories: {
+      osvGeneratedAt: freshness.osvGeneratedAt,
+      newestIncident: freshness.newestIncidentDate,
+    },
     packages: flagged,
     rollup,
     warnings,
@@ -465,6 +473,12 @@ function renderHuman(report: AuditReport, globals: GlobalOptions): void {
 
   const lockRel = relative(process.cwd(), report.lockfile.path) || report.lockfile.path;
   console.log(dim(`lockfile: ${lockRel} (${report.lockfile.type}) — mode: ${report.mode}`));
+  const advisoryAge = advisoryAgeDays(report.advisories.osvGeneratedAt, advisoryNow());
+  console.log(
+    dim(
+      `advisories: OSV ${report.advisories.osvGeneratedAt} · newest incident ${report.advisories.newestIncident} (${advisoryAge} day${advisoryAge === 1 ? '' : 's'} old)`,
+    ),
+  );
   if (report.baseline !== undefined) {
     const b = report.baseline;
     const baseRel = relative(process.cwd(), b.path) || b.path;

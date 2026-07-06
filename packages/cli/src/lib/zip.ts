@@ -7,9 +7,13 @@ import { inflateRawSync } from 'node:zlib';
  *
  * Deliberately minimal: locate the end-of-central-directory record, walk the
  * central directory, decode stored (method 0) and deflated (method 8)
- * entries. Directories and symlinks are skipped; encrypted entries and
- * zip64 archives fail with a clear error rather than being silently
- * mis-read.
+ * entries. Directories and symlinks are skipped; encrypted entries fail with
+ * a clear error rather than being silently mis-read.
+ *
+ * zip64: archives whose ENTRY COUNT overflows the classic EOCD (>65,535
+ * files — lambda bundles with vendored node_modules, the OSV all.zip) are
+ * supported via the zip64 EOCD record. Entries whose own sizes/offsets need
+ * zip64 (any field ≥4GiB) remain unsupported with a clear error.
  *
  * Security: paths are normalized to posix and any entry containing a `..`
  * segment throws — same rule as lib/tar.ts.
@@ -23,6 +27,8 @@ export interface ZipEntry {
 }
 
 const EOCD_SIG = 0x06054b50;
+const EOCD64_LOCATOR_SIG = 0x07064b50;
+const EOCD64_SIG = 0x06064b50;
 const CDIR_SIG = 0x02014b50;
 const LOCAL_SIG = 0x04034b50;
 
@@ -61,14 +67,50 @@ const DOS_DIR = 0x10;
  * Throws a plain Error with a clear message on malformed/unsupported input —
  * callers wrap into ExecError.
  */
-export function readZip(data: Buffer): ZipEntry[] {
-  const eocd = findEocd(data);
+/**
+ * Resolve the central directory's entry count and offset, following the
+ * zip64 EOCD record when the classic EOCD carries overflow sentinels.
+ */
+function readCentralDirectoryInfo(
+  data: Buffer,
+  eocd: number,
+): { totalEntries: number; cdOffset: number } {
   const totalEntries = data.readUInt16LE(eocd + 10);
   const cdSize = data.readUInt32LE(eocd + 12);
   const cdOffset = data.readUInt32LE(eocd + 16);
-  if (totalEntries === 0xffff || cdSize === 0xffffffff || cdOffset === 0xffffffff) {
-    throw new Error('zip64 archives are not supported');
+  if (totalEntries !== 0xffff && cdSize !== 0xffffffff && cdOffset !== 0xffffffff) {
+    return { totalEntries, cdOffset };
   }
+
+  // zip64: the locator (20 bytes) directly precedes the classic EOCD and
+  // points at the zip64 EOCD record holding the real 64-bit values.
+  const locator = eocd - 20;
+  if (locator < 0 || data.readUInt32LE(locator) !== EOCD64_LOCATOR_SIG) {
+    throw new Error('malformed zip64 archive: end-of-central-directory locator not found');
+  }
+  const recordOffset = Number(data.readBigUInt64LE(locator + 8));
+  if (!Number.isSafeInteger(recordOffset) || recordOffset < 0 || recordOffset + 56 > data.length) {
+    throw new Error('malformed zip64 archive: invalid EOCD64 record offset');
+  }
+  if (data.readUInt32LE(recordOffset) !== EOCD64_SIG) {
+    throw new Error('malformed zip64 archive: bad EOCD64 record signature');
+  }
+  const total64 = Number(data.readBigUInt64LE(recordOffset + 32));
+  const cdOffset64 = Number(data.readBigUInt64LE(recordOffset + 48));
+  if (
+    !Number.isSafeInteger(total64) ||
+    !Number.isSafeInteger(cdOffset64) ||
+    cdOffset64 < 0 ||
+    cdOffset64 >= data.length
+  ) {
+    throw new Error('malformed zip64 archive: invalid central directory values');
+  }
+  return { totalEntries: total64, cdOffset: cdOffset64 };
+}
+
+export function readZip(data: Buffer): ZipEntry[] {
+  const eocd = findEocd(data);
+  const { totalEntries, cdOffset } = readCentralDirectoryInfo(data, eocd);
 
   const entries: ZipEntry[] = [];
   let pos = cdOffset;
@@ -90,7 +132,7 @@ export function readZip(data: Buffer): ZipEntry[] {
     pos += 46 + nameLen + extraLen + commentLen;
 
     if (compSize === 0xffffffff || uncompSize === 0xffffffff || localOffset === 0xffffffff) {
-      throw new Error('zip64 archives are not supported');
+      throw new Error(`zip64 entry sizes/offsets are not supported (entry ≥4GiB): ${rawName}`);
     }
     if ((flags & 0x1) !== 0) {
       throw new Error(`encrypted zip entries are not supported: ${rawName}`);

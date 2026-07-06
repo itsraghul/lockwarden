@@ -126,6 +126,31 @@ describe('check --incident', () => {
   });
 });
 
+describe('check — advisory-age enforcement scope', () => {
+  it('plain check ignores --max-advisory-age (no advisory data on its path)', async () => {
+    const r = await run(
+      ['--max-advisory-age', '0', 'check', 'left-pad'],
+      join(PROJECTS, 'audit-clean'),
+      {
+        LOCKWARDEN_NOW: '2099-01-01',
+      },
+    );
+    expect(r.code).toBe(0);
+  });
+
+  it('check --incident enforces --max-advisory-age (exit 2 on stale data)', async () => {
+    const r = await run(
+      ['--max-advisory-age', '0', 'check', '--incident', 'axios-mar26'],
+      join(PROJECTS, 'audit-clean'),
+      {
+        LOCKWARDEN_NOW: '2099-01-01',
+      },
+    );
+    expect(r.code).toBe(2);
+    expect(r.stderr).toContain('days old');
+  });
+});
+
 describe('check --history', () => {
   let repo: string;
 

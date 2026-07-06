@@ -190,6 +190,10 @@ Field-by-field reference (including the `--incident` and `--history` variants):
 - `--history` needs the lockfile to be tracked in git.
 - Queries against `yarn.lock` and `pnpm-lock.yaml` work identically — all parsers
   normalize to the same resolution graph.
+- `--max-advisory-age` applies **only to `--incident`** (the one mode that reads
+  vendored advisory data). Plain queries and `--history` never fail on staleness —
+  the incident-day `npx lockwarden check bad-pkg@1.2.3` one-liner must always work,
+  even from an old pinned install.
 
 ## See also
 
