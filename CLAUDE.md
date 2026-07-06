@@ -63,7 +63,7 @@ lifecycle script (Low-Med, **Critical**) · binding.gyp (Low, **Critical**) · A
 
 Grades A–F per package; project rollup = worst grade + counts. SARIF: Critical→error, High→warning, Med→note, Low→suppressed.
 
-**All weights are provisional until the corpus run (`corpus/`) shows clean separation between top-500 benign packages and the 2026 malicious set (axios/plain-crypto-js, node-ipc 9.1.6/9.2.3/12.0.1, autotel family, Miasma @redhat-cloud-services versions). Do not hardcode final thresholds before that run.**
+**Weights are LOCKED by the top-500 corpus run (2026-07-06, gate PASS: 0 benign delta Criticals across 496 real version bumps; all 22 synthetic fixtures modeled on the 2026 malicious set grade F). Any weight or analyzer-behavior change requires re-running `pnpm corpus:run` and a passing gate — weights.ts is transcribed from corpus/report/weights.json, never hand-edited.**
 
 ## Build order (do not reorder without explicit approval)
 

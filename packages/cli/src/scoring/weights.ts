@@ -1,10 +1,10 @@
 /**
  * ┌─────────────────────────────────────────────────────────────────────────┐
  * │ GENERATED FROM THE CORPUS RUN — do not hand-edit.                       │
- * │ Source: corpus/report/weights.json @ corpus run 2026-07-05              │
- * │ (60 benign + 20 synthetic malicious, separation gate PASS;              │
- * │ native-binary added with 0/60 benign absolute + delta noise).           │
- * │ Weights stay PROVISIONAL until the benign set reaches the full top-500. │
+ * │ Source: corpus/report/weights.json @ TOP-500 corpus run 2026-07-06      │
+ * │ (500 benign / 496 real version-bump pairs + 22 synthetic malicious,     │
+ * │ separation gate PASS: 0 benign delta Criticals, all malicious F).       │
+ * │ Weights are LOCKED by that gate — no longer provisional.                │
  * │ To change anything here: change the analyzers or corpus, re-run         │
  * │ `pnpm corpus:run`, and transcribe the new weights.json.                 │
  * └─────────────────────────────────────────────────────────────────────────┘

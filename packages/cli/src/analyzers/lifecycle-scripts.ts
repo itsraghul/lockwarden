@@ -13,10 +13,33 @@ import { type Analyzer, type Signal, excerpt } from './types.ts';
  * `prepare` in the delta signal produced a benign false-positive Critical
  * (uuid 14.0.0→14.0.1 migrated husky→lefthook). Excluding it removes the FP
  * with zero loss of consumer-install attack coverage.
+ *
+ * CORPUS TUNING (top-500 run, 2026-07-06): a CHANGED script body where both
+ * the old and new bodies are pure, well-known native-toolchain invocations is
+ * a toolchain migration, not a payload change — bcrypt 5.1.1→6.0.0 swapped
+ * `node-pre-gyp install --fallback-to-build` for `node-gyp-build` and was the
+ * single benign delta Critical in 496 real bumps. The exemption applies ONLY
+ * to the changed-body delta (a freshly INTRODUCED hook always signals), and
+ * any non-toolchain segment (e.g. `&& node payload.js` — the node-ipc shape,
+ * covered by the tamper-install-script corpus fixtures) still fires.
  */
 
 /** Hooks that auto-execute on a consumer's install of this dependency. */
 const INSTALL_TRIGGER_HOOKS = new Set(['preinstall', 'install', 'postinstall']);
+
+/**
+ * One well-known native build/fetch tool with plain flag/word arguments.
+ * No paths, URLs, quotes, or shell metacharacters — `/` is deliberately
+ * excluded so `--directory=../x` or piped fetches never match.
+ */
+const TOOLCHAIN_SEGMENT_RE =
+  /^(?:node-gyp-build(?:-optional|-test)?|node-pre-gyp|prebuild-install|prebuildify|node-gyp|cmake-js)(?:\s+(?:--?)?[A-Za-z0-9._=-]+)*$/;
+
+/** True when the whole body is toolchain invocations joined by && / ||. */
+function isToolchainInvocation(body: string): boolean {
+  const segments = body.split(/\s*(?:&&|\|\|)\s*/);
+  return segments.every((segment) => TOOLCHAIN_SEGMENT_RE.test(segment.trim()));
+}
 export const lifecycleScriptsAnalyzer: Analyzer = {
   id: 'lifecycle-scripts',
   scope: 'package',
@@ -59,7 +82,10 @@ export const lifecycleScriptsAnalyzer: Analyzer = {
             },
             metrics: { introduced: 1, changed: 0 },
           });
-        } else if (prevBody !== body) {
+        } else if (
+          prevBody !== body &&
+          !(isToolchainInvocation(prevBody) && isToolchainInvocation(body))
+        ) {
           signals.push({
             analyzer: 'lifecycle-scripts',
             code: 'LW001D-LIFECYCLE-INTRODUCED',

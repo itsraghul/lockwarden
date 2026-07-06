@@ -52,7 +52,33 @@
   cost): ide-task folderOpen delta; size-delta + obfuscation co-occurrence;
   dep-introduction patch-smuggle. Recorded in corpus/report/weights.json — that
   file is the ONLY legitimate source for scoring/weights.ts.
-- Weights stay provisional until the benign set grows to the full top-500.
+- ~~Weights stay provisional until the benign set grows to the full top-500.~~
+  Superseded 2026-07-06: the top-500 run passed — see the section below.
+
+## Calibration — TOP-500 run (2026-07-06): weights LOCKED
+
+- **Gate PASS at full scale**: 500 benign (496 real version-bump pairs) + 22
+  synthetic malicious. 0 benign delta Criticals; all malicious F. Weights in
+  scoring/weights.ts are no longer provisional; any change now requires a
+  corpus re-run (CLAUDE.md updated accordingly).
+- **Benign set provenance**: the ~162-package curated v1 core grown to 500
+  with `npm-high-impact@1.13.0`'s `topDownload` list, assembled offline into
+  benign-top500.json (fetch-benign.ts stays the only network-touching corpus
+  script). Cache is ~127 MB, gitignored, idempotent to refetch.
+- **One FP found and fixed**: bcrypt 5.1.1→6.0.0 swapped
+  `node-pre-gyp install --fallback-to-build` → `node-gyp-build` and tripped the
+  lifecycle CHANGED-body delta. Fix: changed-body delta is exempt when BOTH old
+  and new bodies are pure native-toolchain invocations (node-gyp, node-gyp-build,
+  node-pre-gyp, prebuild-install, prebuildify, cmake-js + plain args only — no
+  paths/URLs/metachars). Freshly INTRODUCED hooks always signal. Two new
+  `tamper-install-script` fixtures (bcrypt, esbuild) prove an appended payload
+  (`… && node lw-inert.js`) on those exact scripts still grades F — same
+  philosophy as the uuid/`prepare` exemption from calibration v1.
+- **Known accepted noise** (below the gate, monitor at next re-run):
+  size-delta 9/496 benign delta Highs (grade D on a bump; none co-fired
+  obfuscation so no elevation); phantom-deps 2/496 benign deltas (by design,
+  never elevated); lifecycle absolute 64/500, phantom absolute 34/500,
+  native-binary absolute 7/500 — all expected inventory-level signals.
 
 ## Baseline suppression design (2026-07-05)
 

@@ -127,8 +127,8 @@ SARIF 2.1.0 output (`--sarif`) uploads directly to the GitHub Security tab — t
 No weight on this page was chosen by intuition. A calibration harness (`corpus/` in the
 repo, never shipped) runs every analyzer against two sets:
 
-- **benign:** top-download npm packages (currently 60; the target is the full top 500),
-  including their real version-to-version bumps;
+- **benign:** the top-500 highest-download npm packages, including their real
+  version-to-version bumps (496 previous-version pairs);
 - **malicious:** synthetic, defanged fixtures reproducing each 2026 attack shape — an
   injected `postinstall`, an added `binding.gyp`, an inflated main file, a phantom dep,
   and the compound shapes above.
@@ -138,11 +138,15 @@ bumps produce zero Criticals.** The shipped weights table is generated from that
 (the source file carries the corpus commit in its header) and is never hand-edited —
 analyzers are in fact [born in the corpus and promoted into the CLI](/project/architecture-decisions/#9-corpus-gated-weights--analyzers-are-born-in-corpus).
 
-Weights remain **provisional until the benign set reaches the full top-500**. The
-malicious reference set includes the confirmed 2026 incidents: the axios
+The weights on this page are **locked by the full top-500 run (2026-07-06)**: zero
+benign delta Criticals across 496 real version bumps, every malicious fixture grading F.
+The malicious reference set includes the confirmed 2026 incidents: the axios
 `plain-crypto-js` phantom dep, the node-ipc versions, the autotel family, and the Miasma
 `@redhat-cloud-services` versions. A security tool that flags every legitimate native
-package trains its users to ignore it — noise is a bug of the same severity as a miss.
+package trains its users to ignore it — noise is a bug of the same severity as a miss;
+the run's one benign false Critical (bcrypt migrating `node-pre-gyp` → `prebuildify`)
+was eliminated by exempting pure toolchain-to-toolchain script migrations, with new
+tamper fixtures proving an *appended* payload on those same scripts still fires.
 
 ## See also
 
