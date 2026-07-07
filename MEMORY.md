@@ -165,8 +165,10 @@
   `test (22)` / `test (24)` / `node20-smoke`, no force-push, no deletion,
   **no bypass actors — direct pushes are rejected for everyone, including the
   owner and workflows**. All work lands via branch → PR → green CI → merge.
-- Consequences wired in: incident-bundle.yml publishes to npm FIRST, then lands
-  its version commit via `gh pr merge --auto --squash` (repo has auto-merge +
+- Consequences wired in: ~~incident-bundle.yml publishes to npm FIRST, then lands
+  its version commit via `gh pr merge --auto --squash`~~ (superseded 2026-07-07:
+  publish-first is impossible — see "npm trusted publishing" below; the auto-merge
+  PR machinery itself is unchanged; repo has auto-merge +
   delete-branch-on-merge enabled). The changesets Version Packages flow is
   unaffected (it was already PR-based). If a CI job is renamed, update the
   ruleset's required checks or merges will deadlock — this now also applies to
@@ -179,6 +181,33 @@
   version, so a bad hand-edit can never point v1 at an unpublished CLI.
   Tag force-push works because the ruleset protects the branch, not tags.
   Manual fallback: action-tag.yml has workflow_dispatch.
+
+## npm trusted publishing — release.yml is the ONLY workflow that can publish (2026-07-07)
+
+- **Discovery**: the first two supervised osv-refresh dispatches failed at
+  `changeset publish` with `E404 Not Found - PUT …/lockwarden` — npm's disguise
+  for "unauthorized". PR #21 (passing `NPM_TOKEN` to the step) did NOT fix it:
+  the token reached the step (`NODE_AUTH_TOKEN: ***` in the env dump) and npm
+  still 404'd. Root cause: **the package uses npm trusted publishing (OIDC)
+  bound to release.yml** — verified via the registry: every published version's
+  `_npmUser` is `GitHub Actions <npm-oidc-no-reply@github.com>` with a
+  `trustedPublisher` object. npm allows ONE trusted publisher per package, so
+  osv-refresh.yml / incident-bundle.yml can never publish directly, and the
+  `NPM_TOKEN` secret is dead weight (likely invalid; it has never done a publish).
+- **Architecture consequence**: publish-first is dead. Both data pipelines now
+  version + land the commit via their auto-merge PR, poll for the merge (20 min
+  timeout), then `gh workflow run release.yml --ref main`. release.yml gained a
+  `workflow_dispatch` trigger for this.
+- **Two GITHUB_TOKEN facts this leans on** (both observed on PR #19): auto-merge
+  pushes to main made with GITHUB_TOKEN do NOT fire `on: push` workflows (that's
+  why release.yml never saw #19's merge and must be dispatched), but
+  `workflow_dispatch`/`repository_dispatch` events created with GITHUB_TOKEN ARE
+  exempt from the recursion block and DO create runs. Bot-created PRs do get
+  their required checks (also observed on #19 — created 15:48, checks green,
+  auto-merged 15:57).
+- Incident-bundle latency target relaxed <15 → <25 min (auto-merge's required
+  checks now on the critical path). If a refresh PR merges but the dispatch is
+  missed, publish manually: `gh workflow run release.yml --ref main`.
 
 ## Environment / accounts
 
