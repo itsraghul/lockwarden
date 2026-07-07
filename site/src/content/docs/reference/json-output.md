@@ -314,6 +314,41 @@ Identical to the `audit` report except:
 | `advisories` | Same freshness stamps as `audit` (`osvGeneratedAt`, `newestIncident`) — dates only, ages never appear in JSON |
 | [Baseline fields](#baseline-fields-additive-only-when-a-baseline-is-applied) | Same as `audit`: `packages[].suppressed`, `rollup.suppressedCounts`, and top-level `baseline` appear when a baseline is applied |
 
+## `lockwarden incidents --json`
+
+```json
+{
+  "command": "incidents",
+  "incidents": [
+    {
+      "id": "node-ipc-may26",
+      "name": "node-ipc binding.gyp compromise (May 2026)",
+      "date": "2026-05-12",
+      "summary": "Malicious payload delivered via a binding.gyp node-gyp hook…",
+      "packages": 1,
+      "fileIocs": 0,
+      "references": ["https://lockwarden.dev/incidents/"]
+    }
+  ],
+  "osv": { "generatedAt": "2026-07-07", "source": "osv.dev npm MAL", "windowMonths": 6, "entries": 5601 },
+  "exitCode": 0
+}
+```
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `command` | `"incidents"` | Command discriminator |
+| `incidents[]` | array | Every bundle this build knows, newest first |
+| `incidents[].id` | string | The `check --incident <id>` id |
+| `incidents[].name` / `.date` / `.summary` | string | Bundle metadata (`date` is the incident's event date) |
+| `incidents[].packages` | number | Package entries in the bundle |
+| `incidents[].fileIocs` | number | File-content sha256 IOCs (matched by [`scan`](/commands/scan/)) |
+| `incidents[].references[]` | string[]? | Source links, when the bundle carries them |
+| `incidents[].local` | `true`? | Present only for `LOCKWARDEN_INCIDENT_DIR` overlays not shipped in this build |
+| `osv.generatedAt` | string | Vendored OSV snapshot date — the `--max-advisory-age` basis |
+| `osv.source` / `.windowMonths` / `.entries` | mixed | Snapshot provenance, window (null for seed data), entry count |
+| `exitCode` | `0` | Always `0` — the listing is informational |
+
 ## `lockwarden secrets --json`
 
 ```json

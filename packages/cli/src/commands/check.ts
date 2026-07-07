@@ -78,7 +78,10 @@ export async function runCheck(
     incident = loadIncidents().get(options.incident);
     if (!incident) {
       const known = [...loadIncidents().keys()].sort().join(', ');
-      throw new ExecError(`unknown incident id "${options.incident}"`, `known incidents: ${known}`);
+      throw new ExecError(
+        `unknown incident id "${options.incident}"`,
+        `known incidents: ${known} — list details with \`lockwarden incidents\``,
+      );
     }
     effectiveQueries = incidentQueries(incident);
   }

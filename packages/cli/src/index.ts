@@ -71,6 +71,14 @@ function buildProgram(): Command {
     });
 
   program
+    .command('incidents')
+    .description('list the incident bundles this build knows (for check --incident <id>)')
+    .action(async (_options, command: Command) => {
+      const { runIncidents } = await import('./commands/incidents.js');
+      process.exitCode = await runIncidents(command.optsWithGlobals());
+    });
+
+  program
     .command('drift')
     .description('lockfile & version-anomaly detection vs a base ref')
     .option('--base <ref>', 'git ref to compare the lockfile against', 'main')

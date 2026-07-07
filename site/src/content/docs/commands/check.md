@@ -37,7 +37,7 @@ automatically on their next install, and `package.json` never showed it.
 | Argument / flag | Type | Default | Meaning |
 | --- | --- | --- | --- |
 | `queries...` | string list | — | Package queries: `<pkg>` (all resolved versions), `<pkg>@<version>` (exact), or `<pkg>@<range>` (semver range) |
-| `--incident <id>` | string | — | Check against an [incident IOC bundle](/incidents/) instead of ad-hoc queries |
+| `--incident <id>` | string | — | Check against an [incident IOC bundle](/incidents/) instead of ad-hoc queries — list valid ids with [`lockwarden incidents`](/commands/incidents/) |
 | `--history` | boolean | `false` | Walk git history of the lockfile to report exposure windows |
 
 All [global flags](/getting-started/#global-flags) apply. `--dir` is repeatable and
