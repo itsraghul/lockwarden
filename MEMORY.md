@@ -82,10 +82,15 @@
 
 ## Baseline suppression design (2026-07-05)
 
-- **First (and only) config-file surface**: `.lockwarden-baseline.json`, audit-only
-  for now. Deliberate precedent — hand-rolled validation, zero new deps, pure disk
-  (works under `--offline`). `scan` extension is a documented follow-up (it reuses
-  `AuditReport`, so the same `applyBaseline` slots in).
+- **First (and only) config-file surface**: `.lockwarden-baseline.json`, ~~audit-only
+  for now~~ (scan extension shipped 2026-07-07 — see below). Deliberate precedent —
+  hand-rolled validation, zero new deps, pure disk (works under `--offline`).
+- **2026-07-07 — scan baseline shipped.** `applyBaseline` made generic
+  (`<T extends PackageReport>`) so scan's `root`-carrying reports survive;
+  `BASELINE_FILENAME` moved to `scoring/baseline.ts` (canonical home). Default
+  path decision for scan: an artifact is not a writable project dir, so the
+  default is `<first --dir, else cwd>/.lockwarden-baseline.json` — the operator's
+  project, NOT inside the artifact. Per-artifact baselines via `--baseline <path>`.
 - **Matching is version-independent** (`code` + package `name`, no version): accepted
   absolute surface persists across benign bumps (the esbuild-lifecycle case); what
   CHANGES between versions is the delta analyzers' + Layer-2's job, which a baseline

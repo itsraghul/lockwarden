@@ -22,7 +22,13 @@ import { locateInstalled } from '../lib/node-modules.js';
 import { bad, bold, configureOutput, dim, paint, printJson, warn } from '../lib/output.js';
 import { loadGraph, parseLockfileContent } from '../lockfile/detect.js';
 import { type PkgKey, type ResolutionGraph, makeKey } from '../lockfile/types.js';
-import { applyBaseline, buildBaseline, loadBaseline, writeBaseline } from '../scoring/baseline.js';
+import {
+  BASELINE_FILENAME,
+  applyBaseline,
+  buildBaseline,
+  loadBaseline,
+  writeBaseline,
+} from '../scoring/baseline.js';
 import { buildRollup, scorePackage } from '../scoring/engine.js';
 import { layer2Findings, loadLayer2Sources } from '../scoring/layer2.js';
 import { toSarif } from '../scoring/sarif.js';
@@ -38,8 +44,6 @@ export interface AuditOptions {
   baseline?: string | boolean;
   writeBaseline?: boolean;
 }
-
-export const BASELINE_FILENAME = '.lockwarden-baseline.json';
 
 const PACKAGE_ANALYZERS = ALL_ANALYZERS.filter((a) => a.scope === 'package');
 const TREE_ANALYZERS = ALL_ANALYZERS.filter((a) => a.scope === 'tree');

@@ -85,6 +85,9 @@ function buildProgram(): Command {
     .argument('[artifact]', 'path to a tarball/zip/directory artifact')
     .option('--image <docker-image>', 'scan a docker image (via docker save)')
     .option('--verbose', 'include Low findings in SARIF output', false)
+    .option('--baseline <path>', 'baseline file (default: <dir>/.lockwarden-baseline.json)')
+    .option('--no-baseline', 'ignore any baseline file')
+    .option('--write-baseline', 'create/update the baseline from current findings', false)
     .action(async (artifact: string | undefined, options, command: Command) => {
       const { runScan } = await import('./commands/scan.js');
       process.exitCode = await runScan(artifact, options, command.optsWithGlobals());

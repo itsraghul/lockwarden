@@ -1,3 +1,5 @@
+import { mkdtempSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
@@ -167,6 +169,88 @@ describe('scan — baked-in postinstall (tampered dep pre-baked in node_modules)
     );
     sarif.runs[0].tool.driver.version = '<version>';
     expect(sarif).toMatchSnapshot();
+  });
+});
+
+describe('scan — baseline suppression', () => {
+  const baked = artifact('app-baked-postinstall.tgz');
+
+  it('--write-baseline round-trip: write, then consume for a clean med-threshold run', async () => {
+    const file = path.join(mkdtempSync(path.join(tmpdir(), 'lockwarden-scan-baseline-')), 'b.json');
+    const w = await run(baked, { writeBaseline: true, baseline: file });
+    expect(w.code).toBe(0);
+    expect(w.stdout).toContain('baseline written');
+    expect(w.stdout).toContain('(2 entries)');
+
+    const r = await run(baked, { baseline: file }, globals({ threshold: 'med' }));
+    expect(r.code).toBe(0);
+    expect(r.stdout).toContain('baseline: 2 finding(s) suppressed');
+    expect(r.stdout).toContain('[suppressed] LW001-LIFECYCLE');
+    expect(r.stdout).toContain('[suppressed] LW007-OBFUSCATION');
+
+    // Without the baseline the same scan fails at --threshold med.
+    expect((await run(baked, { baseline: false }, globals({ threshold: 'med' }))).code).toBe(1);
+  });
+
+  it('auto-loads <dir>/.lockwarden-baseline.json from the first --dir', async () => {
+    const dir = mkdtempSync(path.join(tmpdir(), 'lockwarden-scan-baseline-'));
+    const file = path.join(dir, '.lockwarden-baseline.json');
+    await run(baked, { writeBaseline: true, baseline: file });
+
+    const r = await run(baked, {}, globals({ threshold: 'med', dir: [dir] }));
+    expect(r.code).toBe(0);
+    expect(r.stdout).toContain('baseline: 2 finding(s) suppressed');
+  });
+
+  it('--json carries suppressed findings, suppressedCounts, and baseline info', async () => {
+    const file = path.join(mkdtempSync(path.join(tmpdir(), 'lockwarden-scan-baseline-')), 'b.json');
+    await run(baked, { writeBaseline: true, baseline: file });
+
+    const r = await run(baked, { baseline: file }, globals({ json: true, threshold: 'med' }));
+    expect(r.code).toBe(0);
+    const parsed = JSON.parse(r.stdout);
+    expect(parsed.baseline.matched).toBe(2);
+    expect(parsed.baseline.expired).toBe(0);
+    expect(parsed.rollup.suppressedCounts.med).toBe(2);
+    expect(parsed.rollup.grade).toBe('A'); // both findings suppressed → regraded
+    expect(parsed.packages).toHaveLength(1); // still listed, visibly suppressed
+    expect(parsed.packages[0].findings).toHaveLength(0);
+    expect(parsed.packages[0].suppressed).toHaveLength(2);
+    expect(parsed.packages[0].root).toBe('package/node_modules/evil-thing');
+  });
+
+  it('--sarif marks suppressed results with the suppressions property', async () => {
+    const file = path.join(mkdtempSync(path.join(tmpdir(), 'lockwarden-scan-baseline-')), 'b.json');
+    await run(baked, { writeBaseline: true, baseline: file });
+
+    const r = await run(baked, { baseline: file }, globals({ sarif: true }));
+    const sarif = JSON.parse(r.stdout);
+    const results = sarif.runs[0].results;
+    expect(results).toHaveLength(2);
+    for (const result of results) {
+      expect(result.suppressions).toBeDefined();
+    }
+  });
+
+  it('an explicit --baseline path that does not exist is exit 2', async () => {
+    await expect(run(baked, { baseline: '/nonexistent/baseline.json' })).rejects.toMatchObject({
+      exitCode: 2,
+    });
+    await expect(run(baked, { baseline: '/nonexistent/baseline.json' })).rejects.toThrow(
+      /baseline .* not found/,
+    );
+  });
+
+  it('--write-baseline conflicts with machine output and --no-baseline (exit 2)', async () => {
+    await expect(
+      run(baked, { writeBaseline: true }, globals({ json: true })),
+    ).rejects.toMatchObject({ exitCode: 2 });
+    await expect(
+      run(baked, { writeBaseline: true }, globals({ sarif: true })),
+    ).rejects.toMatchObject({ exitCode: 2 });
+    await expect(run(baked, { writeBaseline: true, baseline: false })).rejects.toMatchObject({
+      exitCode: 2,
+    });
   });
 });
 

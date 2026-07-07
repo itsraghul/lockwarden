@@ -23,6 +23,9 @@ Arguments:
 Options:
   --image <docker-image>  scan a docker image (via docker save)
   --verbose               include Low findings in SARIF output (default: false)
+  --baseline <path>       baseline file (default: <dir>/.lockwarden-baseline.json)
+  --no-baseline           ignore any baseline file
+  --write-baseline        create/update the baseline from current findings (default: false)
   -h, --help              display help for command
 ```
 
@@ -40,8 +43,34 @@ known payload files) from [incident bundles](/incidents/).
 | `artifact` | string | — | Path to a tarball (`.tgz`/`.tar.gz`), zip, or directory |
 | `--image <docker-image>` | string | — | Scan a docker image, extracted via `docker save` — no daemon API dependency |
 | `--verbose` | boolean | `false` | Include Low findings in SARIF output |
+| `--baseline <path>` | string | `<dir>/.lockwarden-baseline.json` | Baseline of accepted findings — see [Baseline](#baseline) |
+| `--no-baseline` | boolean | `false` | Ignore any baseline file |
+| `--write-baseline` | boolean | `false` | Create/update the baseline from current findings |
 
 All [global flags](/getting-started/#global-flags) apply.
+
+## Baseline
+
+`scan` supports the same [baseline suppression as `audit`](/commands/audit/#baseline):
+accept the reviewed findings of an artifact once, then fail CI only on **new** execution
+surface. Same file format, same version-independent `code` + `package` matching, same
+never-suppressible classes (Layer-2, Critical, delta-on-F).
+
+One difference: an artifact is not a writable project directory, so the default baseline
+path is `.lockwarden-baseline.json` in the **first `--dir`, else the current working
+directory** — the project running the scan, not the artifact being scanned. Pass
+`--baseline <path>` to keep separate baselines for separate artifacts.
+
+```bash
+# Review the artifact's findings, then accept them:
+lockwarden scan dist/app.tgz --write-baseline
+
+# Commit the file; from now on only NEW findings fail the run:
+lockwarden scan dist/app.tgz --ci --threshold med
+```
+
+Suppressed findings stay visible — dimmed `[suppressed]` lines, a `suppressed` array in
+[`--json`](/reference/json-output/), and the SARIF `suppressions` property.
 
 ## Example 1 — a release tarball with baked-in tampering
 

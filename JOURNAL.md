@@ -1,5 +1,24 @@
 # JOURNAL.md — build progression
 
+## 2026-07-07 — scan baseline suppression (v0.7 changeset staged, PR pending)
+
+The documented follow-up from the 2026-07-05 baseline design: `scan` gets the
+same `--baseline` / `--no-baseline` / `--write-baseline` surface as `audit`.
+
+- `applyBaseline` made generic so scan's `root`-carrying package reports pass
+  through; `BASELINE_FILENAME` moved to `scoring/baseline.ts` (audit imports it).
+- Default path: `<first --dir, else cwd>/.lockwarden-baseline.json` — an
+  artifact is not a writable project dir, so the baseline lives with the
+  operator's project. `--baseline <path>` for per-artifact baselines.
+- Suppressed findings visible everywhere (dimmed `[suppressed]` lines, additive
+  `--json` fields, SARIF `suppressions`), exit code from active findings only —
+  identical semantics to audit, same never-suppressible classes.
+- Tests 320 → 326 (6 new scan integration tests: round-trip, --dir auto-load,
+  json/sarif shapes, missing explicit path, contradictory flags). Existing
+  snapshots byte-identical.
+- Docs: scan command page (new Baseline section), json-output scan table,
+  both READMEs. Changeset minor.
+
 ## 2026-07-07 — publish routing fix: all npm publishes via release.yml
 
 The first two supervised osv-refresh dispatches failed at `changeset publish`
