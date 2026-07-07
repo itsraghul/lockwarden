@@ -37,7 +37,8 @@
       "corpus/cache/**",
       "corpus/generated/**",
       "**/test/fixtures/**",
-      "pnpm-lock.yaml"
+      "pnpm-lock.yaml",
+      "packages/cli/src/data/osv-npm-snapshot.json"
     ]
   }
 }

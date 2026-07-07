@@ -56,7 +56,10 @@ jobs:
 
       - name: quick regression gate
         if: steps.refresh.outputs.changed == 'true'
-        run: pnpm test:unit
+        # lint included: the refreshed snapshot must pass the same checks the
+        # PR's required CI runs (a >1MiB snapshot once tripped biome's maxSize
+        # and deadlocked the auto-merge — catch that here, before the PR).
+        run: pnpm test:unit && pnpm lint
 
       - name: version the patch release
         if: steps.refresh.outputs.changed == 'true'
