@@ -1,5 +1,25 @@
 # JOURNAL.md — build progression
 
+## 2026-07-07 — inaugural OSV refresh SHIPPED (0.6.1) + release-chain hardening
+
+The supervised first run of the weekly pipeline, which surfaced and fixed four
+distinct issues before landing:
+
+- **0.6.1 on npm**: refreshed snapshot (6mo window, `advisories: OSV
+  2026-07-07`), published via the new merge-then-dispatch route, verified with
+  `npx lockwarden@0.6.1 audit`.
+- Bot-PR CI runs are held at `action_required` when the chain's triggering
+  actor is github-actions[bot]; human-dispatched chains run instantly. The
+  Monday cron therefore still needs one manual approval per changed week until
+  the owner adds a PR-creation PAT or relaxes the Actions approval policy
+  (details + unstick procedure in MEMORY.md).
+- biome's 1 MiB maxSize tripped on the refreshed snapshot in required CI —
+  snapshot now biome-ignored; refresh gate runs lint too (landed with PR #23).
+- **v1 action tag had silently drifted** (stale at 0.5.1 through two releases):
+  action-tag.yml's on:push never fires for bot auto-merges. Tag moved to the
+  0.6.1 pin by manual dispatch; release.yml now waits for the pin PR merge and
+  dispatches action-tag.yml itself (this PR).
+
 ## 2026-07-07 — scan baseline suppression (v0.7 changeset staged, PR pending)
 
 The documented follow-up from the 2026-07-05 baseline design: `scan` gets the
