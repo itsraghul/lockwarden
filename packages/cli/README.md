@@ -64,8 +64,9 @@ $ lockwarden check evil-pkg@1.2.3
 ```
 
 Queries accept exact versions, semver ranges, or a bare name (all resolved
-versions). Bundled incidents include `axios-mar26`, `node-ipc-may26`, and
-`shai-hulud-jun26`; see them at [lockwarden.dev/incidents](https://lockwarden.dev/incidents/).
+versions). List the bundles your installed version knows with
+`lockwarden incidents` (ids, dates, package counts — always exit 0); see
+[lockwarden.dev/incidents](https://lockwarden.dev/incidents/) for the catalog.
 
 ### `audit` — execution-surface scoring
 

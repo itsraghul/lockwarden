@@ -1,5 +1,22 @@
 # JOURNAL.md — build progression
 
+## 2026-07-07 — `incidents` command (changeset staged, PR pending)
+
+Backlog item after scan-baseline: discoverability for `check --incident`.
+
+- New `lockwarden incidents`: lists every vendored bundle (newest first) with
+  date, package/file-IOC counts, the ready-to-paste `npx lockwarden check
+  --incident <id>` line, and an OSV-snapshot summary header. Always exit 0
+  (informational); exit 2 only on execution errors (malformed overlay).
+- `LOCKWARDEN_INCIDENT_DIR` overlays marked `[local overlay]` / `"local": true`
+  — new `vendoredIncidentIds()` + `osvSnapshotInfo()` accessors in data/.
+- Tests 326 → 331, all expectations DERIVED from the vendored data (no
+  snapshots — an incident release must never fail its own PR's CI; same rule
+  as the advisory-freshness tests).
+- `check --incident` unknown-id hint now points at the command. Docs: new
+  command page + sidebar entry, json-output section, check page cross-link,
+  both READMEs, CLAUDE.md command surface. Changeset minor.
+
 ## 2026-07-07 — inaugural OSV refresh SHIPPED (0.6.1) + release-chain hardening
 
 The supervised first run of the weekly pipeline, which surfaced and fixed four

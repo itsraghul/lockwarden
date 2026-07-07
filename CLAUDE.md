@@ -85,6 +85,7 @@ lockwarden check  <pkg>@<ver> [...] | --incident <id> | <pkg> --history
 lockwarden drift  [--base <ref>]
 lockwarden scan   <artifact-path> | --image <docker-image>
 lockwarden secrets [--dir <path>]
+lockwarden incidents            # post-v1 addition: list vendored bundles (always exit 0)
 Global: --json --sarif --ci --dir --threshold <grade> --offline
 ```
 

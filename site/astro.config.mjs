@@ -46,6 +46,7 @@ export default defineConfig({
             { label: 'drift', slug: 'commands/drift' },
             { label: 'scan', slug: 'commands/scan' },
             { label: 'secrets', slug: 'commands/secrets' },
+            { label: 'incidents', slug: 'commands/incidents' },
           ],
         },
         {

@@ -83,6 +83,27 @@ export function loadOsvSnapshot(): OsvEntry[] {
   return (osvSnapshot as OsvSnapshotFile).entries;
 }
 
+/** Ids shipped in THIS build (excludes LOCKWARDEN_INCIDENT_DIR overlays). */
+export function vendoredIncidentIds(): Set<string> {
+  return new Set(VENDORED.map((bundle) => bundle.id));
+}
+
+/** Snapshot metadata without the entry payload (for listings/reports). */
+export function osvSnapshotInfo(): {
+  generatedAt: string;
+  source: string;
+  windowMonths: number | null;
+  entries: number;
+} {
+  const file = osvSnapshot as OsvSnapshotFile;
+  return {
+    generatedAt: file.generatedAt,
+    source: file.source,
+    windowMonths: file.windowMonths,
+    entries: file.entries.length,
+  };
+}
+
 /**
  * Freshness stamps for the vendored advisory shipment. `osvGeneratedAt` is
  * the refresh-cadenced stamp (the `--max-advisory-age` basis); the newest
