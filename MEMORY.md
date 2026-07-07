@@ -214,6 +214,40 @@
   checks now on the critical path). If a refresh PR merges but the dispatch is
   missed, publish manually: `gh workflow run release.yml --ref main`.
 
+## Bot-PR check approval hold + v1 tag drift (2026-07-07, inaugural refresh)
+
+- **The `action_required` hold**: a bot-created PR's CI runs are held for manual
+  approval when the chain's `triggering_actor` is github-actions[bot] (the
+  scheduled/bot-chained case). When a HUMAN starts the chain (`gh workflow run`
+  as itsraghul), GitHub propagates the human as triggering_actor down through
+  the workflow's `gh pr create` and the checks run immediately (observed: held
+  refresh PR #23 from a bot chain vs instant checks on pin PR #24 from a
+  human-dispatched release). Unstick a held PR by close/reopen as the owner
+  (retriggers pull_request with a human actor), then re-arm auto-merge —
+  closing CANCELS auto-merge.
+- **Consequence for the Monday cron**: the schedule-initiated chain is bot-only,
+  so the refresh PR's checks will be held, the 20-min wait step will time out
+  (loudly, with the manual recovery command), and the week's publish needs one
+  human "Approve and run" + `gh workflow run release.yml --ref main`. **Durable
+  fix requires the owner**: either a fine-grained PAT (contents+PRs write) as a
+  secret used for `gh pr create`/`--auto` in osv-refresh/incident-bundle, or
+  relaxing the repo's Actions approval policy in Settings → Actions.
+- **v1 tag drift found**: action-tag.yml's `on: push` (action.yml paths filter)
+  never fires for bot auto-merges, so v1 sat at the 0.5.1 pin through the 0.6.0
+  and 0.6.1 releases — "proven end-to-end at 0.6.0" in the earlier entry was
+  wrong about the tag leg. Fixed 2026-07-07 by manual dispatch; release.yml now
+  waits for the pin PR merge and dispatches action-tag.yml itself.
+- **Biome gate on generated data**: the refreshed snapshot (1.1 MiB) tripped
+  biome's 1 MiB `files.maxSize` in required CI — biome.json now ignores
+  `packages/cli/src/data/osv-npm-snapshot.json` (refresh budget allows up to
+  1.5 MB), and osv-refresh's gate runs `pnpm lint` alongside `test:unit` so a
+  refresh PR can never reach CI with a lint failure.
+- **Inaugural refresh verified end-to-end**: 0.6.1 on npm with `advisories:
+  OSV 2026-07-07` (verified via `npx lockwarden@0.6.1 audit`), 6mo window;
+  keep-list survival enforced by the in-run validator. The no-op-week path has
+  NOT been exercised in CI yet — the next scheduled run with no upstream
+  changes is its first real test.
+
 ## Environment / accounts
 
 - Repo-local git identity is `58110802+itsraghul@users.noreply.github.com`; the
