@@ -3,6 +3,13 @@ name: release
 on:
   push:
     branches: [main]
+  # Dispatched by osv-refresh.yml / incident-bundle.yml after their auto-merge
+  # PR lands: npm trusted publishing is bound to THIS workflow file (verified
+  # 2026-07-07 — every release's _npmUser is the GitHub Actions OIDC publisher,
+  # and npm allows one trusted publisher per package), so all publishes route
+  # through here. Auto-merges via GITHUB_TOKEN never fire `on: push`, hence the
+  # explicit dispatch (workflow_dispatch is exempt from the recursion block).
+  workflow_dispatch:
 
 concurrency: release-${{ github.ref }}
 

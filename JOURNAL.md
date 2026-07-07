@@ -1,5 +1,26 @@
 # JOURNAL.md — build progression
 
+## 2026-07-07 — publish routing fix: all npm publishes via release.yml
+
+The first two supervised osv-refresh dispatches failed at `changeset publish`
+with npm's E404 auth disguise — even after PR #21 wired `NPM_TOKEN` through.
+Root cause found in the registry metadata: the package publishes via **npm
+trusted publishing (OIDC) bound to release.yml** (`_npmUser` = GitHub Actions
+on every version); npm allows one trusted publisher per package, so no other
+workflow can ever publish, and the token secret never worked.
+
+- osv-refresh.yml + incident-bundle.yml: publish step removed; they now
+  version → land the commit via the existing auto-merge PR → poll for the
+  merge → `gh workflow run release.yml --ref main` (workflow_dispatch is
+  exempt from the GITHUB_TOKEN recursion block; `on: push` is not — the
+  auto-merged PR #19 provably never fired release.yml).
+- release.yml: new `workflow_dispatch` trigger; publish machinery unchanged.
+- Incident latency target <15 → <25 min (required checks on critical path).
+- MEMORY.md: new trusted-publishing section; publish-first note struck.
+
+**Pending:** merge PR → re-dispatch osv-refresh supervised → verify the full
+chain lands 0.6.1 on npm with a fresh snapshot.
+
 ## 2026-07-06 — weekly OSV refresh pipeline (PR pending)
 
 Operational-trust release, part 2 of 2. The "refresh before release" seed
