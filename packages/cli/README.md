@@ -104,7 +104,9 @@ lockwarden scan --image <docker-image># via `docker save` layers
 
 Applies the same analysis to vendored `node_modules` **actually on disk** —
 inside tarballs, zips, and Docker layers (later-layer-wins, whiteouts honored) —
-catching pre-baked tampering that registry-level scanning never sees.
+catching pre-baked tampering that registry-level scanning never sees. Supports
+the same [baseline file](https://lockwarden.dev/commands/scan/#baseline) as
+`audit` (`--write-baseline` / `--baseline <path>` / `--no-baseline`).
 
 ### `secrets` — hardcoded-credential scan
 

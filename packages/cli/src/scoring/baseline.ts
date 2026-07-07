@@ -18,6 +18,8 @@ import { codeOf } from './fingerprint.ts';
 import type { Finding, PackageReport, SuppressedFinding } from './types.ts';
 import { GRADE_OF_SEVERITY, SEV_RANK, type Severity } from './weights.ts';
 
+export const BASELINE_FILENAME = '.lockwarden-baseline.json';
+
 export interface BaselineEntry {
   /** Rule id, e.g. "LW001-LIFECYCLE". Match key together with `package`. */
   code: string;
@@ -40,8 +42,8 @@ export interface BaselineFile {
   entries: BaselineEntry[];
 }
 
-export interface BaselineApplication {
-  reports: PackageReport[];
+export interface BaselineApplication<T extends PackageReport = PackageReport> {
+  reports: T[];
   suppressedCounts: Record<Severity, number>;
   matched: number;
   expired: number;
@@ -161,11 +163,11 @@ function regrade(pkg: PackageReport, active: Finding[]): PackageReport['grade'] 
  * Pure: returns rebuilt reports, leaves the inputs untouched. Callers compute
  * exit codes and rollups from the ACTIVE findings only.
  */
-export function applyBaseline(
-  reports: PackageReport[],
+export function applyBaseline<T extends PackageReport>(
+  reports: T[],
   baseline: BaselineFile,
   now: Date,
-): BaselineApplication {
+): BaselineApplication<T> {
   const live = new Map<string, BaselineEntry>();
   const warnings: string[] = [];
   let expired = 0;

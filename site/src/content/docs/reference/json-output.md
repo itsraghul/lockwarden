@@ -312,6 +312,7 @@ Identical to the `audit` report except:
 | `packages[].root` | Path of the package root *inside the artifact*, e.g. `"package/node_modules/evil-thing"` |
 | No `mode` field | `scan` is always absolute analysis + Layer-2 overlay |
 | `advisories` | Same freshness stamps as `audit` (`osvGeneratedAt`, `newestIncident`) — dates only, ages never appear in JSON |
+| [Baseline fields](#baseline-fields-additive-only-when-a-baseline-is-applied) | Same as `audit`: `packages[].suppressed`, `rollup.suppressedCounts`, and top-level `baseline` appear when a baseline is applied |
 
 ## `lockwarden secrets --json`
 
