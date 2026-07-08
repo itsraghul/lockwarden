@@ -17,7 +17,7 @@ Public technical docs live in `docs/` (`ARCHITECTURE.md`, `THREAT-MODEL.md`, `SC
 ## Hard rules — never violate, never re-litigate
 
 1. **Local-first, zero telemetry, zero accounts.** No analytics, no phone-home, no API backend — ever. Advisory data ships vendored in the npm package; updates happen via npm releases.
-2. **Lockfile is the source of truth.** All resolution comes from `package-lock.json` / `yarn.lock` / `pnpm-lock.yaml`, never from `package.json` alone. Transitive resolutions must always be reported.
+2. **Lockfile is the source of truth.** All resolution comes from `package-lock.json` / `yarn.lock` / `pnpm-lock.yaml` / `bun.lock`, never from `package.json` alone. Transitive resolutions must always be reported.
 3. **Delta over absolute.** Scoring weights *newly appeared* execution surface between versions above mere existence. Legitimate native packages carry `binding.gyp` forever; attacks introduce it.
 4. **Structural detection primary, feeds secondary.** Layer-1 (execution surface + version anomalies) must work with zero network and zero advisory data. Layer-2 (OSV/IOC matching) is an overlay; any Layer-2 hit = Critical.
 5. **Network calls are allowed ONLY for:** fetching package tarballs during `--diff`/`--deep` delta comparison. `--offline` must hard-fail (exit 2) on ANY attempted network call.

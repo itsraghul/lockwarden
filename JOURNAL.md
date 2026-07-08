@@ -1,5 +1,29 @@
 # JOURNAL.md — build progression
 
+## 2026-07-08 — bun.lock parser (changeset staged, PR pending)
+
+Backlog item: fourth lockfile format, opening lockwarden to Bun projects.
+
+- New `lockfile/bun.ts`: parses Bun ≥1.2's textual JSONC lockfile into the
+  unified ResolutionGraph. Nesting paths are npm's node_modules layout minus
+  the "node_modules/" prefix ("send/debug/ms"), so edge resolution reuses the
+  walk-up algorithm — scope-aware ("@scope/name" is one path segment).
+- JSONC handled by a ~60-line in-repo stripper (trailing commas + comments,
+  string-safe) — zero new dependencies, per the budget ledger.
+- Workspace stubs ("name@workspace:path") skipped with a warning, same
+  precedent as npm's link stubs. Root edges from the "" workspace (manifest
+  fallback). Git/tarball tuples parsed structurally (meta = first object,
+  integrity = last sha string) so odd shapes degrade instead of crash.
+- A lone binary bun.lockb → exit 2 with the `--save-text-lockfile` hint.
+- Fixture `bun-basic` is real `bun install` output (send's nested debug@2.6.9
+  + ms@2.0.0 under hoisted debug@4.4.3/ms@2.1.3 — genuine conflict nesting).
+  Tests 339 → 348. Verified live: `audit` (22 pkgs, grade A) and `check ms`
+  (both versions, correct transitive paths) against the fixture.
+- Docs: supported-lockfile mentions updated across README/site/ARCHITECTURE/
+  THREAT-MODEL/CLAUDE.md; CI-recipe path globs gain `**/bun.lock`; check's
+  json-output `lockfile.type` enum corrected (it always emitted
+  yarn-classic/yarn-berry, never "yarn"). Changeset minor.
+
 ## 2026-07-08 — `explain` command (changeset staged, PR pending)
 
 Backlog item after `incidents`: the reference command for finding codes.

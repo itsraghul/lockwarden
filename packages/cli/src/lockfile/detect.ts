@@ -12,6 +12,7 @@
 import { existsSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { ExecError } from '../exit.js';
+import { parseBun } from './bun.js';
 import { parseNpm } from './npm.js';
 import { parsePnpm } from './pnpm.js';
 import type { LockfileType, ParseContext, ResolutionGraph } from './types.js';
@@ -30,6 +31,7 @@ const CANDIDATES: ReadonlyArray<{ file: string; type: LockfileType; manager: str
   { file: 'package-lock.json', type: 'npm', manager: 'npm' },
   { file: 'pnpm-lock.yaml', type: 'pnpm', manager: 'pnpm' },
   { file: 'yarn.lock', type: 'yarn-classic', manager: 'yarn' },
+  { file: 'bun.lock', type: 'bun', manager: 'bun' },
 ];
 
 export function detectLockfile(dir: string): DetectedLockfile | null {
@@ -84,6 +86,8 @@ export function parseLockfileContent(
         return parseYarnBerry(content, ctx);
       case 'pnpm':
         return parsePnpm(content, ctx);
+      case 'bun':
+        return parseBun(content, ctx);
     }
   } catch (err) {
     if (err instanceof ExecError) throw err;
@@ -94,9 +98,15 @@ export function parseLockfileContent(
 export function loadGraph(dir: string): ResolutionGraph {
   const detected = detectLockfile(dir);
   if (!detected) {
+    if (existsSync(join(dir, 'bun.lockb'))) {
+      throw new ExecError(
+        `only a binary bun.lockb found in ${dir}`,
+        'Generate the textual lockfile with `bun install --save-text-lockfile`, then re-run.',
+      );
+    }
     throw new ExecError(
       `no lockfile found in ${dir}`,
-      'Expected package-lock.json, pnpm-lock.yaml, or yarn.lock. The lockfile is the source of truth.',
+      'Expected package-lock.json, pnpm-lock.yaml, yarn.lock, or bun.lock. The lockfile is the source of truth.',
     );
   }
 

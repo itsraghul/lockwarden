@@ -12,7 +12,7 @@ export type PkgKey = `${string}@${string}`;
 export const ROOT = '<root>' as const;
 export type RootMarker = typeof ROOT;
 
-export type LockfileType = 'npm' | 'yarn-classic' | 'yarn-berry' | 'pnpm';
+export type LockfileType = 'npm' | 'yarn-classic' | 'yarn-berry' | 'pnpm' | 'bun';
 
 export type EdgeType = 'prod' | 'dev' | 'optional' | 'peer';
 

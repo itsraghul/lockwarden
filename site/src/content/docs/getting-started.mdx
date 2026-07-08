@@ -9,8 +9,8 @@ lockwarden is a local-first CLI that audits what your npm dependency tree can **
 lifecycle install scripts, native build hooks (`binding.gyp`), AI-agent hooks, IDE task
 files — and answers *"am I hit?"* during supply-chain incidents.
 
-It works in any project with a lockfile (`package-lock.json`, `yarn.lock`, or
-`pnpm-lock.yaml`). The lockfile is the source of truth — lockwarden never resolves from
+It works in any project with a lockfile (`package-lock.json`, `yarn.lock`,
+`pnpm-lock.yaml`, or `bun.lock`). The lockfile is the source of truth — lockwarden never resolves from
 `package.json` alone, because transitive resolutions are where real attacks live.
 
 ## Install

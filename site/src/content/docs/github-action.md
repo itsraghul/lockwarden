@@ -18,6 +18,7 @@ on:
       - '**/package-lock.json'
       - '**/pnpm-lock.yaml'
       - '**/yarn.lock'
+      - '**/bun.lock'
 permissions:
   contents: read
   security-events: write # SARIF upload

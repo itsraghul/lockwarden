@@ -64,7 +64,7 @@ These vectors dictate the non-negotiable design rules:
 - **The lockfile is the source of truth.** Semver ranges mean `package.json`
   doesn't tell you what you actually resolved; 2026 attacks lived in transitive,
   lockfile-only resolutions. All resolution comes from `package-lock.json`,
-  `yarn.lock`, or `pnpm-lock.yaml`.
+  `yarn.lock`, `pnpm-lock.yaml`, or `bun.lock`.
 - **Structural detection is primary; feeds are secondary.** Execution-surface and
   version-delta analysis works on day zero with zero network, before any advisory
   exists. Known-bad matching (OSV, incident bundles) is an overlay.

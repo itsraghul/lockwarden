@@ -41,6 +41,11 @@ const YARN_BERRY_LOCK = [
   '  resolution: "x@workspace:."',
   '',
 ].join('\n');
+const BUN_LOCK = `{
+  "lockfileVersion": 1,
+  "workspaces": { "": { "name": "x" } },
+  "packages": {},
+}`;
 
 describe('detectLockfile', () => {
   it('returns null when no lockfile exists', () => {
@@ -55,6 +60,7 @@ describe('detectLockfile', () => {
       'yarn-classic',
     );
     expect(detectLockfile(tempProject({ 'yarn.lock': YARN_BERRY_LOCK }))?.type).toBe('yarn-berry');
+    expect(detectLockfile(tempProject({ 'bun.lock': BUN_LOCK }))?.type).toBe('bun');
   });
 
   it('prefers the lockfile matching the packageManager field and warns', () => {
@@ -122,6 +128,26 @@ describe('loadGraph', () => {
     expect(graph.lockfileType).toBe('yarn-classic');
     expect(graph.packages.get('test-runner-lite@5.0.3')?.dev).toBe(true);
     expect(graph.packages.get('@scope/util@2.3.1')?.dev).toBe(false);
+  });
+
+  it('loads the bun-basic fixture end to end', () => {
+    const graph = loadGraph(fixtureDir('bun-basic'));
+    expect(graph.lockfileType).toBe('bun');
+    expect(graph.packages.size).toBe(22);
+    expect(graph.packages.get('left-pad@1.3.0')?.dev).toBe(true);
+    expect(graph.warnings).toEqual([]);
+  });
+
+  it('a lone binary bun.lockb is exit 2 with the --save-text-lockfile hint', () => {
+    const dir = tempProject({ 'bun.lockb': 'binary-gibberish' });
+    try {
+      loadGraph(dir);
+      expect.unreachable('loadGraph should have thrown');
+    } catch (err) {
+      expect(err).toBeInstanceOf(ExecError);
+      expect((err as ExecError).exitCode).toBe(2);
+      expect((err as ExecError).hint).toContain('--save-text-lockfile');
+    }
   });
 
   it('throws ExecError with exit code 2 when no lockfile exists', () => {
