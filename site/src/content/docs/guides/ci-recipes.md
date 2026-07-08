@@ -35,6 +35,7 @@ on:
       - '**/package-lock.json'
       - '**/pnpm-lock.yaml'
       - '**/yarn.lock'
+      - '**/bun.lock'
 permissions:
   contents: read
   security-events: write
@@ -74,6 +75,7 @@ on:
       - '**/package-lock.json'
       - '**/pnpm-lock.yaml'
       - '**/yarn.lock'
+      - '**/bun.lock'
 permissions:
   contents: read
   security-events: write
@@ -124,6 +126,7 @@ lockwarden:
         - '**/package-lock.json'
         - '**/pnpm-lock.yaml'
         - '**/yarn.lock'
+        - '**/bun.lock'
   variables:
     GIT_DEPTH: 0
   cache:
@@ -291,7 +294,8 @@ skip everything else — the GitHub (`on.pull_request.paths`) and GitLab
 (`rules: changes:`) recipes above show the syntax. Two caveats:
 
 - Include **all** lockfile names your repos use (`package-lock.json`,
-  `pnpm-lock.yaml`, `yarn.lock`) — and the glob prefix `**/` for monorepos.
+  `pnpm-lock.yaml`, `yarn.lock`, `bun.lock`) — and the glob prefix `**/` for
+  monorepos.
 - If you also run [`drift`](/commands/drift/) as a tamper check, keep the same trigger:
   drift findings are, by definition, lockfile changes.
 

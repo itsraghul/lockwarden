@@ -26,7 +26,7 @@ surface from your **lockfile** and from the artifacts actually on disk, scores w
 **changed** between versions, and gives you a CI-composable exit code.
 
 - 🔒 **Local-first** — zero telemetry, zero accounts, no backend, ever. Nothing leaves your machine.
-- 🎯 **Lockfile is the truth** — resolves `package-lock.json` / `yarn.lock` / `pnpm-lock.yaml`, never `package.json` alone.
+- 🎯 **Lockfile is the truth** — resolves `package-lock.json` / `yarn.lock` / `pnpm-lock.yaml` / `bun.lock`, never `package.json` alone.
 - ⚡ **Day-zero capable** — structural + delta detection needs no advisory feed.
 - 🧩 **3 runtime dependencies, zero transitive** — a supply-chain tool's own tree is a marketing artifact.
 - ✅ **Published with provenance** — SLSA attestation on every release.
@@ -67,7 +67,7 @@ Global flags: `--json` · `--sarif` (GitHub Security tab) · `--ci` · `--dir` �
 # .github/workflows/lockwarden.yml
 on:
   pull_request:
-    paths: ['**/package-lock.json', '**/pnpm-lock.yaml', '**/yarn.lock']
+    paths: ['**/package-lock.json', '**/pnpm-lock.yaml', '**/yarn.lock', '**/bun.lock']
 permissions: { contents: read, security-events: write }
 jobs:
   audit:

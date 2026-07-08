@@ -37,7 +37,8 @@ incident's `plain-crypto-js` never appeared in any manifest; node-ipc rode `^9` 
 into trees whose manifests never changed.
 
 **Decision.** All resolution comes from `package-lock.json` (v1/v2/v3), `yarn.lock`
-(classic + berry), or `pnpm-lock.yaml` (6.x/9.x) — never from `package.json` alone.
+(classic + berry), `pnpm-lock.yaml` (6.x/9.x), or `bun.lock` — never from
+`package.json` alone.
 Every parser normalizes into one unified resolution graph (`name@version` nodes plus
 explicit edges, with a reverse index), so everything downstream is lockfile-agnostic.
 

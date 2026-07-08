@@ -12,7 +12,7 @@ Everyone else asks *"is this package known-bad?"* — lockwarden asks **"what ca
 Modern npm attacks run when you **install or build**, before a line of your app executes — via lifecycle scripts, native build hooks (`binding.gyp`), AI-agent hooks, IDE task files, or code pre-baked into vendored `node_modules`. lockwarden enumerates that execution surface from your **lockfile** and the artifacts actually on disk.
 
 - 🔒 **Local-first.** Zero telemetry, zero accounts, no backend. Nothing ever leaves your machine.
-- 🎯 **Lockfile is the truth.** Resolves against `package-lock.json` / `yarn.lock` / `pnpm-lock.yaml` — where transitive attacks live — never `package.json` alone.
+- 🎯 **Lockfile is the truth.** Resolves against `package-lock.json` / `yarn.lock` / `pnpm-lock.yaml` / `bun.lock` — where transitive attacks live — never `package.json` alone.
 - ⚡ **Day-zero capable.** Structural detection (execution surface + version deltas) needs no advisory feed to fire.
 - 🧩 **Tiny by design.** 3 runtime dependencies, zero transitive. A supply-chain tool's own tree is a marketing artifact.
 
@@ -152,7 +152,7 @@ Security tab you already use.
 # .github/workflows/lockwarden.yml
 on:
   pull_request:
-    paths: ['**/package-lock.json', '**/pnpm-lock.yaml', '**/yarn.lock']
+    paths: ['**/package-lock.json', '**/pnpm-lock.yaml', '**/yarn.lock', '**/bun.lock']
 permissions: { contents: read, security-events: write }
 jobs:
   audit:

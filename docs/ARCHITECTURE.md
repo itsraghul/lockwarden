@@ -13,7 +13,7 @@ lockfile ──▶ resolution graph ──▶ analyzers ──▶ signals ──
 1. **Parse** the lockfile (`src/lockfile/`) into one unified `ResolutionGraph` —
    packages, dependency edges, and a reverse (`inbound`) index. Supported:
    `package-lock.json` v1/v2/v3, `yarn.lock` (classic + berry), `pnpm-lock.yaml`
-   6.x/9.x.
+   6.x/9.x, `bun.lock` (Bun ≥1.2 textual lockfile).
 2. **Analyze** each package's contents (`src/analyzers/`). Analyzers emit typed
    `Signal` facts — they never assign severity.
 3. **Score** (`src/scoring/`). Layer 1 maps `(analyzer, kind)` to a corpus-gated

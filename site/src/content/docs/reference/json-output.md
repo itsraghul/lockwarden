@@ -65,7 +65,7 @@ Conventions shared by all commands:
 | `dirs[]` | array | One entry per `--dir` (or the current directory) |
 | `dirs[].dir` | string | Absolute project directory |
 | `dirs[].lockfile.path` | string | Absolute lockfile path |
-| `dirs[].lockfile.type` | `"npm" \| "yarn" \| "pnpm"` | Detected lockfile format |
+| `dirs[].lockfile.type` | `"npm" \| "yarn-classic" \| "yarn-berry" \| "pnpm" \| "bun"` | Detected lockfile format |
 | `dirs[].warnings[]` | string[] | Non-fatal notes for this directory |
 | `dirs[].queries[]` | array | One entry per query (with `--incident`, one per bundled package version) |
 | `queries[].query` | string | The query as resolved, e.g. `"evil-pkg@1.2.3"` |

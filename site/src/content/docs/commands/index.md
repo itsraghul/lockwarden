@@ -47,8 +47,8 @@ Commands:
 ## Shared behavior
 
 - **The lockfile is the source of truth.** `check`, `audit`, and `drift` resolve from
-  `package-lock.json` (v1/v2/v3), `yarn.lock` (classic and berry), or `pnpm-lock.yaml`
-  (6.x/9.x) — never from `package.json` alone.
+  `package-lock.json` (v1/v2/v3), `yarn.lock` (classic and berry), `pnpm-lock.yaml`
+  (6.x/9.x), or `bun.lock` — never from `package.json` alone.
 - **Output modes.** Human-readable by default; `--json` for
   [stable machine-readable reports](/reference/json-output/); `--sarif` (on scoring
   commands) for the GitHub Security tab.
