@@ -86,6 +86,7 @@ lockwarden drift  [--base <ref>]
 lockwarden scan   <artifact-path> | --image <docker-image>
 lockwarden secrets [--dir <path>]
 lockwarden incidents            # post-v1 addition: list vendored bundles (always exit 0)
+lockwarden explain [code]       # post-v1 addition: explain finding codes (always exit 0)
 Global: --json --sarif --ci --dir --threshold <grade> --offline
 ```
 

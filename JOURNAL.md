@@ -1,5 +1,24 @@
 # JOURNAL.md — build progression
 
+## 2026-07-08 — `explain` command (changeset staged, PR pending)
+
+Backlog item after `incidents`: the reference command for finding codes.
+
+- New `lockwarden explain [code]`: no arg lists all 11 families with their
+  weights; with a code, prints detects / why-it-matters / what-to-do plus
+  corpus-elevation notes. Accepts family ids (LW001), full absolute/delta
+  codes, D-shorthand, analyzer ids, and Layer-2 codes — a full dynamic code
+  (LW2-IOC-node-ipc-may26) also resolves the vendored advisory it points at.
+- Content lives in `scoring/explanations.ts`; **severities are never restated
+  there** — read live from weights.ts, so explain can never drift from what
+  audit scores (same principle as data-derived test expectations).
+- Always exit 0; unknown code exit 2 with the valid-token hint. `check
+  --incident`'s unknown-id hint pattern extended to explain's.
+- Tests 331 → 339 (8 new, weights/advisory expectations derived, no
+  snapshots). Docs: command page + sidebar, json-output section, both
+  READMEs (CLI README gains a "reference commands" section), CLAUDE.md
+  command surface. Changeset minor.
+
 ## 2026-07-07 — `incidents` command (changeset staged, PR pending)
 
 Backlog item after scan-baseline: discoverability for `check --incident`.

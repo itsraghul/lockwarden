@@ -349,6 +349,43 @@ Identical to the `audit` report except:
 | `osv.source` / `.windowMonths` / `.entries` | mixed | Snapshot provenance, window (null for seed data), entry count |
 | `exitCode` | `0` | Always `0` — the listing is informational |
 
+## `lockwarden explain --json`
+
+```json
+{
+  "command": "explain",
+  "query": "LW001",
+  "entries": [
+    {
+      "id": "LW001",
+      "name": "lifecycle install script",
+      "layer": 1,
+      "analyzer": "lifecycle-scripts",
+      "codes": { "absolute": "LW001-LIFECYCLE", "delta": "LW001D-LIFECYCLE-INTRODUCED" },
+      "weights": { "absolute": "med", "delta": "critical" },
+      "detects": "…", "whyItMatters": "…", "whatToDo": "…"
+    }
+  ],
+  "exitCode": 0
+}
+```
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `command` | `"explain"` | Command discriminator |
+| `query` | string? | The queried code — absent when listing all |
+| `entries[]` | array | One per family (all of them when no query) |
+| `entries[].id` | string | Family id (`LW001` … `LW009`, `LW2-OSV`, `LW2-IOC`) |
+| `entries[].layer` | `1 \| 2` | Structural analyzer vs known-bad overlay |
+| `entries[].analyzer` | string? | Analyzer id (layer 1 only) |
+| `entries[].codes` | object | `absolute?` / `delta?` full codes, or `pattern?` (layer 2) |
+| `entries[].weights` | object? | `{ absolute, delta }` severities, read live from the locked table (layer 1 only) |
+| `entries[].alwaysCritical` | `true`? | Layer 2 only — any hit is critical |
+| `entries[].detects` / `.whyItMatters` / `.whatToDo` | string | The explanation |
+| `entries[].elevation` | string? | Corpus-tuned compound elevation, when one involves this analyzer |
+| `entries[].matched` | object? | For a full Layer-2 code: `{ source: "osv" \| "incident", id, summary, packages[] }` from the vendored data |
+| `exitCode` | `0` | Always `0` — unknown codes are exit `2` with no JSON document |
+
 ## `lockwarden secrets --json`
 
 ```json

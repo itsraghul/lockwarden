@@ -47,6 +47,7 @@ export default defineConfig({
             { label: 'scan', slug: 'commands/scan' },
             { label: 'secrets', slug: 'commands/secrets' },
             { label: 'incidents', slug: 'commands/incidents' },
+            { label: 'explain', slug: 'commands/explain' },
           ],
         },
         {

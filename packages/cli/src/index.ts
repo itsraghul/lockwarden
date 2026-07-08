@@ -71,6 +71,15 @@ function buildProgram(): Command {
     });
 
   program
+    .command('explain')
+    .description('explain a finding code: what it detects, its weights, what to do')
+    .argument('[code]', 'e.g. LW001, LW001-LIFECYCLE, lifecycle-scripts, LW2-OSV; omit to list all')
+    .action(async (code: string | undefined, _options, command: Command) => {
+      const { runExplain } = await import('./commands/explain.js');
+      process.exitCode = await runExplain(code, command.optsWithGlobals());
+    });
+
+  program
     .command('incidents')
     .description('list the incident bundles this build knows (for check --incident <id>)')
     .action(async (_options, command: Command) => {
