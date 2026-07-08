@@ -118,6 +118,19 @@ lockwarden secrets [--dir <path>]
 A deliberately minimal regex + entropy scan of project source and dependency
 install-path files. Secrets are always masked in every output mode.
 
+### `incidents` & `explain` — the reference commands
+
+```bash
+lockwarden incidents            # list the bundles this build knows (check --incident ids)
+lockwarden explain              # list every finding code with its weights
+lockwarden explain LW006        # one code: what it detects, why, what to do
+```
+
+Both are informational (always exit 0, fully offline). `explain` accepts any
+spelling a report emits — `LW001`, `LW001-LIFECYCLE`, `lifecycle-scripts`, or a
+full Layer-2 code like `LW2-IOC-node-ipc-may26` (which also resolves the
+advisory it points at). Weights are read live from the corpus-locked table.
+
 ## Global flags
 
 | Flag | Effect |
