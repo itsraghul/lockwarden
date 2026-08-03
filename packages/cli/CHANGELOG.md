@@ -1,5 +1,11 @@
 # lockwarden
 
+## 0.10.1
+
+### Patch Changes
+
+- OSV snapshot refresh 2026-08-03: 6986 entries (+1894 new / −509 removed, 6mo window)
+
 ## 0.10.0
 
 ### Minor Changes
